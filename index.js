@@ -19,6 +19,9 @@ const client = new Client({
   ],
 });
 
+// 🔥 DEBUG (MUY IMPORTANTE)
+console.log("TOKEN:", process.env.TOKEN);
+
 const TOKEN = process.env.TOKEN;
 
 // 🔥 TRICODES
@@ -46,8 +49,8 @@ const tricodes = {
 let registros = {};
 let solicitudes = {};
 
-client.on('ready', () => {
-  console.log(`🔥 Fire Manager PRO (MODAL) activo`);
+client.once('ready', () => {
+  console.log(`🔥 Fire Manager PRO (MODAL) activo como ${client.user.tag}`);
 });
 
 // 📌 PANEL
@@ -166,7 +169,6 @@ client.on('interactionCreate', async (interaction) => {
 
     const data = registros[user];
 
-    // 🔥 SI YA TIENE TODO → ABRIR MODAL
     if (data.equipo && data.rol && data.grupo) {
 
       const modal = new ModalBuilder()
@@ -192,7 +194,7 @@ client.on('interactionCreate', async (interaction) => {
     }
   }
 
-  // 🧾 MODAL SUBMIT
+  // 🧾 MODAL
   if (interaction.isModalSubmit()) {
 
     const user = interaction.user.id;
@@ -240,5 +242,11 @@ client.on('interactionCreate', async (interaction) => {
     });
   }
 });
+
+// 🔥 CHECK FINAL
+if (!TOKEN) {
+  console.error("❌ TOKEN NO DETECTADO");
+  process.exit(1);
+}
 
 client.login(TOKEN);
