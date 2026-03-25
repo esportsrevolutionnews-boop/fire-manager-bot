@@ -254,7 +254,7 @@ client.on('interactionCreate', async (interaction) => {
         });
       }
 
-      const canalNotificaciones = interaction.guild.channels.cache.find(c => c.name === '📢┃notificaciones');
+      const canalNotificaciones = interaction.guild.channels.cache.find(c => c.name === '📢┋notificaciones');
       const canalCambios = interaction.guild.channels.cache.find(c => c.name === '🔄┋cambios');
 
       if (!canalNotificaciones) {
