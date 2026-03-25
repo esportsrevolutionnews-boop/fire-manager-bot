@@ -19,38 +19,57 @@ const client = new Client({
   ],
 });
 
-// 🔥 DEBUG (MUY IMPORTANTE)
-console.log("TOKEN:", process.env.TOKEN);
-
 const TOKEN = process.env.TOKEN;
 
-// 🔥 TRICODES
-const tricodes = {
-  "9z GLOBANT": "9zG",
-  "ALL GLORY GAMERHOOD": "AGG",
-  "BLUE CHEESE": "BC",
-  "CACM ESPORTS": "CACM",
-  "CHILL ESPORTS": "CHL",
-  "ESTORM DRK": "ESG",
-  "FD QUISQUEYA": "QFD",
-  "FLORIDA FLF": "FLF",
-  "FUEGO": "FGO",
-  "GUN DYNASTY": "GD",
-  "HNS ESPORTS": "HNS",
-  "INFINITY E-SPORTS": "INF",
-  "LEVIATÁN": "LEV",
-  "LMG ESPORT": "LMG",
-  "LYON": "LYON",
-  "MONOUGG": "MGG",
-  "MOVISTAR KOI": "KOI",
-  "NOVA LEGION": "NVL"
+// 🔥 CONFIG POR SERVIDOR
+const CONFIGS = {
+  "1485225770287894530": {
+    rolBase: "FFWS",
+    grupos: ["A", "B", "C"],
+    
+    equipos: {
+      "9z GLOBANT": "9zG",
+      "ALL GLORY GAMERHOOD": "AGG",
+      "BLUE CHEESE": "BC",
+      "CACM ESPORTS": "CACM",
+      "CHILL ESPORTS": "CHL",
+      "ESTORM DRK": "ESG",
+      "FD QUISQUEYA": "QFD",
+      "FLORIDA FLF": "FLF",
+      "FUEGO": "FGO",
+      "GUN DYNASTY": "GD",
+      "HNS ESPORTS": "HNS",
+      "INFINITY E-SPORTS": "INF",
+      "LEVIATÁN": "LEV",
+      "LMG ESPORT": "LMG",
+      "LYON": "LYON",
+      "MONOUGG": "MGG",
+      "MOVISTAR KOI": "KOI",
+      "NOVA LEGION": "NVL"
+    }
+  },
+
+  "1486297664051216445": {
+    rolBase: "PUROS CRACKS",
+    
+    equipos: {
+      "ARGENTINA": "AR",
+      "CHILE": "CL",
+      "COLOMBIA": "CO",
+      "ECUADOR": "EC",
+      "LATAM 1": "L1",
+      "LATAM 2": "L2",
+      "PERU": "PE",
+      "MEXICO": "MX",
+    }
+  }
 };
 
 let registros = {};
 let solicitudes = {};
 
-client.once('ready', () => {
-  console.log(`🔥 Fire Manager PRO (MODAL) activo como ${client.user.tag}`);
+client.once('clientReady', () => {
+  console.log(`🔥 Bot activo como ${client.user.tag}`);
 });
 
 // 📌 PANEL
@@ -65,7 +84,7 @@ client.on('messageCreate', async (message) => {
     const row = new ActionRowBuilder().addComponents(boton);
 
     message.channel.send({
-      content: '🔥 **Registro FFWS**\nPresiona el botón para registrarte',
+      content: '🔥 **Registro**\nPresiona el botón para registrarte',
       components: [row],
     });
   }
@@ -73,6 +92,20 @@ client.on('messageCreate', async (message) => {
 
 // 🔥 INTERACCIONES
 client.on('interactionCreate', async (interaction) => {
+
+  // 🧠 DETECTAR SERVIDOR
+  const guildId = interaction.guild?.id;
+  const CONFIG = CONFIGS[guildId];
+
+  if (!CONFIG) {
+    if (interaction.isRepliable()) {
+      return interaction.reply({
+        content: "❌ Este servidor no está configurado",
+        ephemeral: true
+      });
+    }
+    return;
+  }
 
   // 🔘 BOTÓN
   if (interaction.isButton()) {
@@ -83,10 +116,12 @@ client.on('interactionCreate', async (interaction) => {
       const equipoMenu = new StringSelectMenuBuilder()
         .setCustomId('equipo')
         .setPlaceholder('Selecciona tu equipo')
-        .addOptions(Object.keys(tricodes).map(e => ({
-          label: e,
-          value: e
-        })));
+        .addOptions(
+          Object.keys(CONFIG.equipos).map(e => ({
+            label: e,
+            value: e
+          }))
+        );
 
       const rolMenu = new StringSelectMenuBuilder()
         .setCustomId('rol')
@@ -99,14 +134,30 @@ client.on('interactionCreate', async (interaction) => {
           { label: 'STAFF', value: 'STAFF' }
         ]);
 
-      const grupoMenu = new StringSelectMenuBuilder()
-        .setCustomId('grupo')
-        .setPlaceholder('Selecciona tu grupo')
-        .addOptions([
-          { label: 'GRUPO A', value: 'A' },
-          { label: 'GRUPO B', value: 'B' },
-          { label: 'GRUPO C', value: 'C' }
-        ]);
+      let componentes = [
+  new ActionRowBuilder().addComponents(equipoMenu),
+  new ActionRowBuilder().addComponents(rolMenu)
+];
+
+if (CONFIG.grupos) {
+  const grupoMenu = new StringSelectMenuBuilder()
+    .setCustomId('grupo')
+    .setPlaceholder('Selecciona tu grupo')
+    .addOptions(
+      CONFIG.grupos.map(g => ({
+        label: `GRUPO ${g}`,
+        value: g
+      }))
+    );
+
+  componentes.push(new ActionRowBuilder().addComponents(grupoMenu));
+}
+
+await interaction.reply({
+  content: '📋 Selecciona tus datos:',
+  components: componentes,
+  ephemeral: true
+});
 
       await interaction.reply({
         content: '📋 Selecciona tus datos:',
@@ -128,9 +179,17 @@ client.on('interactionCreate', async (interaction) => {
         const member = await interaction.guild.members.fetch(userId);
 
         const rolEquipo = interaction.guild.roles.cache.find(r => r.name === data.equipo);
-        const rolBase = interaction.guild.roles.cache.find(r => r.name === 'FFWS');
+        const rolBase = interaction.guild.roles.cache.find(r => r.name === CONFIG.rolBase);
         const rolTipo = interaction.guild.roles.cache.find(r => r.name === data.rol);
-        const rolGrupo = interaction.guild.roles.cache.find(r => r.name === `GRUPO ${data.grupo}`);
+        let rolGrupo = null;
+
+if (CONFIG.grupos) {
+  rolGrupo = interaction.guild.roles.cache.find(
+    r => r.name === `GRUPO ${data.grupo}`
+  );
+}
+
+if (rolGrupo) await member.roles.add(rolGrupo);
 
         if (rolEquipo) await member.roles.add(rolEquipo);
         if (rolBase) await member.roles.add(rolBase);
@@ -169,11 +228,15 @@ client.on('interactionCreate', async (interaction) => {
 
     const data = registros[user];
 
-    if (data.equipo && data.rol && data.grupo) {
+    if (
+  data.equipo &&
+  data.rol &&
+  (CONFIG.grupos ? data.grupo : true)
+)
 
       const modal = new ModalBuilder()
         .setCustomId('modal_nick')
-        .setTitle('Registro FFWS');
+        .setTitle('Registro');
 
       const input = new TextInputBuilder()
         .setCustomId('nickname')
@@ -203,12 +266,19 @@ client.on('interactionCreate', async (interaction) => {
     const nickname = interaction.fields.getTextInputValue('nickname');
 
     data.nickname = nickname;
-    data.tricode = tricodes[data.equipo];
+    data.tricode = CONFIG.equipos[data.equipo];
     data.userId = user;
 
     solicitudes[user] = data;
 
     const canal = interaction.guild.channels.cache.find(c => c.name === '📋┃solicitudes');
+
+    if (!canal) {
+      return interaction.reply({
+        content: '❌ Canal de solicitudes no encontrado',
+        ephemeral: true
+      });
+    }
 
     const embed = new EmbedBuilder()
       .setTitle('📥 Nueva solicitud')
@@ -243,7 +313,6 @@ client.on('interactionCreate', async (interaction) => {
   }
 });
 
-// 🔥 CHECK FINAL
 if (!TOKEN) {
   console.error("❌ TOKEN NO DETECTADO");
   process.exit(1);
