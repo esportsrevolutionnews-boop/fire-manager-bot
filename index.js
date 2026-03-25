@@ -67,6 +67,7 @@ const CONFIGS = {
 
 let registros = {};
 let solicitudes = {};
+let partidas = {};
 
 client.once('clientReady', () => {
   console.log(`🔥 Bot activo como ${client.user.tag}`);
