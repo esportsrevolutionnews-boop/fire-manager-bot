@@ -26,7 +26,7 @@ const CONFIGS = {
   "1485225770287894530": {
     rolBase: "FFWS",
     grupos: ["A", "B", "C"],
-    
+    roles: ["JUGADOR", "COACH", "MANAGER", "ANALISTA", "STAFF"],
     equipos: {
       "9z GLOBANT": "9zG",
       "ALL GLORY GAMERHOOD": "AGG",
@@ -51,7 +51,7 @@ const CONFIGS = {
 
   "1486297664051216445": {
     rolBase: "PUROS CRACKS",
-    
+    roles: ["JUGADOR", "CAPITAN", "COACH", "MANAGER", "ANALISTA", "STAFF"],
     equipos: {
       "ARGENTINA": "AR",
       "CHILE": "CL",
@@ -60,7 +60,7 @@ const CONFIGS = {
       "LATAM 1": "L1",
       "LATAM 2": "L2",
       "PERU": "PE",
-      "MEXICO": "MX",
+      "MEXICO": "MX"
     }
   }
 };
@@ -93,7 +93,6 @@ client.on('messageCreate', async (message) => {
 // 🔥 INTERACCIONES
 client.on('interactionCreate', async (interaction) => {
 
-  // 🧠 DETECTAR SERVIDOR
   const guildId = interaction.guild?.id;
   const CONFIG = CONFIGS[guildId];
 
@@ -126,46 +125,35 @@ client.on('interactionCreate', async (interaction) => {
       const rolMenu = new StringSelectMenuBuilder()
         .setCustomId('rol')
         .setPlaceholder('Selecciona tu rol')
-        .addOptions([
-          { label: 'JUGADOR', value: 'JUGADOR' },
-          { label: 'COACH', value: 'COACH' },
-          { label: 'MANAGER', value: 'MANAGER' },
-          { label: 'ANALISTA', value: 'ANALISTA' },
-          { label: 'STAFF', value: 'STAFF' }
-        ]);
+        .addOptions(
+          CONFIG.roles.map(r => ({
+            label: r,
+            value: r
+          }))
+        );
 
       let componentes = [
-  new ActionRowBuilder().addComponents(equipoMenu),
-  new ActionRowBuilder().addComponents(rolMenu)
-];
+        new ActionRowBuilder().addComponents(equipoMenu),
+        new ActionRowBuilder().addComponents(rolMenu)
+      ];
 
-if (CONFIG.grupos) {
-  const grupoMenu = new StringSelectMenuBuilder()
-    .setCustomId('grupo')
-    .setPlaceholder('Selecciona tu grupo')
-    .addOptions(
-      CONFIG.grupos.map(g => ({
-        label: `GRUPO ${g}`,
-        value: g
-      }))
-    );
+      if (CONFIG.grupos) {
+        const grupoMenu = new StringSelectMenuBuilder()
+          .setCustomId('grupo')
+          .setPlaceholder('Selecciona tu grupo')
+          .addOptions(
+            CONFIG.grupos.map(g => ({
+              label: `GRUPO ${g}`,
+              value: g
+            }))
+          );
 
-  componentes.push(new ActionRowBuilder().addComponents(grupoMenu));
-}
-
-await interaction.reply({
-  content: '📋 Selecciona tus datos:',
-  components: componentes,
-  ephemeral: true
-});
+        componentes.push(new ActionRowBuilder().addComponents(grupoMenu));
+      }
 
       await interaction.reply({
         content: '📋 Selecciona tus datos:',
-        components: [
-          new ActionRowBuilder().addComponents(equipoMenu),
-          new ActionRowBuilder().addComponents(rolMenu),
-          new ActionRowBuilder().addComponents(grupoMenu)
-        ],
+        components: componentes,
         ephemeral: true
       });
     }
@@ -176,20 +164,25 @@ await interaction.reply({
         const userId = interaction.customId.replace('aprobar_', '');
         const data = solicitudes[userId];
 
+        if (!data) {
+          return interaction.reply({
+            content: '❌ Datos no encontrados',
+            ephemeral: true
+          });
+        }
+
         const member = await interaction.guild.members.fetch(userId);
 
         const rolEquipo = interaction.guild.roles.cache.find(r => r.name === data.equipo);
         const rolBase = interaction.guild.roles.cache.find(r => r.name === CONFIG.rolBase);
         const rolTipo = interaction.guild.roles.cache.find(r => r.name === data.rol);
+
         let rolGrupo = null;
-
-if (CONFIG.grupos) {
-  rolGrupo = interaction.guild.roles.cache.find(
-    r => r.name === `GRUPO ${data.grupo}`
-  );
-}
-
-if (rolGrupo) await member.roles.add(rolGrupo);
+        if (CONFIG.grupos) {
+          rolGrupo = interaction.guild.roles.cache.find(
+            r => r.name === `GRUPO ${data.grupo}`
+          );
+        }
 
         if (rolEquipo) await member.roles.add(rolEquipo);
         if (rolBase) await member.roles.add(rolBase);
@@ -229,10 +222,10 @@ if (rolGrupo) await member.roles.add(rolGrupo);
     const data = registros[user];
 
     if (
-  data.equipo &&
-  data.rol &&
-  (CONFIG.grupos ? data.grupo : true)
-) {
+      data.equipo &&
+      data.rol &&
+      (CONFIG.grupos ? data.grupo : true)
+    ) {
 
       const modal = new ModalBuilder()
         .setCustomId('modal_nick')
@@ -263,6 +256,13 @@ if (rolGrupo) await member.roles.add(rolGrupo);
     const user = interaction.user.id;
     const data = registros[user];
 
+    if (!data) {
+      return interaction.reply({
+        content: '❌ Error de registro',
+        ephemeral: true
+      });
+    }
+
     const nickname = interaction.fields.getTextInputValue('nickname');
 
     data.nickname = nickname;
@@ -280,22 +280,27 @@ if (rolGrupo) await member.roles.add(rolGrupo);
       });
     }
 
+    const fields = [
+      { name: 'Usuario', value: `<@${user}>` },
+      { name: 'Equipo', value: data.equipo },
+      { name: 'Rol', value: data.rol }
+    ];
+
+    if (CONFIG.grupos) {
+      fields.push({ name: 'Grupo', value: data.grupo });
+    }
+
+    fields.push({ name: 'Nick', value: nickname });
+
     const embed = new EmbedBuilder()
       .setTitle('📥 Nueva solicitud')
-      .addFields(
-        { name: 'Usuario', value: `<@${user}>` },
-        { name: 'Equipo', value: data.equipo },
-        { name: 'Rol', value: data.rol },
-        { name: 'Grupo', value: data.grupo },
-        { name: 'Nick', value: nickname }
-      );
+      .addFields(fields);
 
     const botones = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
         .setCustomId(`aprobar_${user}`)
         .setLabel('✅ Aprobar')
         .setStyle(ButtonStyle.Success),
-
       new ButtonBuilder()
         .setCustomId(`rechazar_${user}`)
         .setLabel('❌ Rechazar')
