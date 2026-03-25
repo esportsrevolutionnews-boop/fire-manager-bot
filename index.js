@@ -76,33 +76,27 @@ client.once('clientReady', () => {
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
-  // PANEL
   if (message.content === '!panel') {
     const boton = new ButtonBuilder()
       .setCustomId('registro')
       .setLabel('🎮 Registrarse')
       .setStyle(ButtonStyle.Primary);
 
-    const row = new ActionRowBuilder().addComponents(boton);
-
     message.channel.send({
-      content: '🔥 **Registro**\nPresiona para registrarte',
-      components: [row],
+      content: '🔥 Registro',
+      components: [new ActionRowBuilder().addComponents(boton)],
     });
   }
 
-  // MATCH SYSTEM
   if (message.content === '!match') {
     const boton = new ButtonBuilder()
       .setCustomId('finalizar_partida')
       .setLabel('🏁 Finalizar partida')
       .setStyle(ButtonStyle.Success);
 
-    const row = new ActionRowBuilder().addComponents(boton);
-
     message.channel.send({
-      content: '🎮 **Sistema de partidas**',
-      components: [row],
+      content: '🎮 Sistema de partidas',
+      components: [new ActionRowBuilder().addComponents(boton)],
     });
   }
 });
@@ -112,10 +106,9 @@ client.on('interactionCreate', async (interaction) => {
 
   const guildId = interaction.guild?.id;
   const CONFIG = CONFIGS[guildId];
-
   if (!CONFIG) return;
 
-  // 🔘 REGISTRO
+  // 🎮 REGISTRO
   if (interaction.isButton() && interaction.customId === 'registro') {
 
     registros[interaction.user.id] = {};
@@ -150,28 +143,68 @@ client.on('interactionCreate', async (interaction) => {
   // 🏁 BOTÓN PARTIDA
   if (interaction.isButton() && interaction.customId === 'finalizar_partida') {
 
-    const modal = new ModalBuilder()
-      .setCustomId('modal_match')
-      .setTitle('Finalizar Partida');
+    partidas[interaction.user.id] = {};
 
-    modal.addComponents(
-      new ActionRowBuilder().addComponents(
-        new TextInputBuilder().setCustomId('partida').setLabel('Partida').setStyle(TextInputStyle.Short)
-      ),
-      new ActionRowBuilder().addComponents(
-        new TextInputBuilder().setCustomId('equipo1').setLabel('Equipo 1').setStyle(TextInputStyle.Short)
-      ),
-      new ActionRowBuilder().addComponents(
-        new TextInputBuilder().setCustomId('equipo2').setLabel('Equipo 2').setStyle(TextInputStyle.Short)
-      )
-    );
+    const equipo1Menu = new StringSelectMenuBuilder()
+      .setCustomId('match_equipo1')
+      .setPlaceholder('Equipo 1')
+      .addOptions(Object.keys(CONFIG.equipos).map(e => ({ label: e, value: e })));
 
-    return interaction.showModal(modal);
+    const equipo2Menu = new StringSelectMenuBuilder()
+      .setCustomId('match_equipo2')
+      .setPlaceholder('Equipo 2')
+      .addOptions(Object.keys(CONFIG.equipos).map(e => ({ label: e, value: e })));
+
+    return interaction.reply({
+      content: 'Selecciona equipos:',
+      components: [
+        new ActionRowBuilder().addComponents(equipo1Menu),
+        new ActionRowBuilder().addComponents(equipo2Menu)
+      ],
+      ephemeral: true
+    });
   }
 
-  // SELECTS
+  // 🔽 SELECTS
   if (interaction.isStringSelectMenu()) {
+
     const user = interaction.user.id;
+
+    // MATCH SELECTS
+    if (interaction.customId.startsWith('match_')) {
+
+      partidas[user] ??= {};
+
+      if (interaction.customId === 'match_equipo1') {
+        partidas[user].equipo1 = interaction.values[0];
+      }
+
+      if (interaction.customId === 'match_equipo2') {
+        partidas[user].equipo2 = interaction.values[0];
+      }
+
+      const data = partidas[user];
+
+      if (data.equipo1 && data.equipo2) {
+
+        const modal = new ModalBuilder()
+          .setCustomId('modal_match')
+          .setTitle('Finalizar Partida');
+
+        const partida = new TextInputBuilder()
+          .setCustomId('partida')
+          .setLabel('Número de partida')
+          .setStyle(TextInputStyle.Short);
+
+        modal.addComponents(new ActionRowBuilder().addComponents(partida));
+
+        return interaction.showModal(modal);
+      }
+
+      return interaction.reply({ content: 'Equipo guardado', ephemeral: true });
+    }
+
+    // REGISTRO SELECTS
     registros[user] ??= {};
     registros[user][interaction.customId] = interaction.values[0];
 
@@ -183,14 +216,12 @@ client.on('interactionCreate', async (interaction) => {
         .setCustomId('modal_nick')
         .setTitle('Registro');
 
-      modal.addComponents(
-        new ActionRowBuilder().addComponents(
-          new TextInputBuilder()
-            .setCustomId('nickname')
-            .setLabel('Nickname')
-            .setStyle(TextInputStyle.Short)
-        )
-      );
+      const input = new TextInputBuilder()
+        .setCustomId('nickname')
+        .setLabel('Nickname')
+        .setStyle(TextInputStyle.Short);
+
+      modal.addComponents(new ActionRowBuilder().addComponents(input));
 
       return interaction.showModal(modal);
     }
@@ -198,7 +229,7 @@ client.on('interactionCreate', async (interaction) => {
     return interaction.reply({ content: 'Guardado', ephemeral: true });
   }
 
-  // MODAL REGISTRO
+  // 🧾 MODAL REGISTRO
   if (interaction.isModalSubmit() && interaction.customId === 'modal_nick') {
 
     const user = interaction.user.id;
@@ -233,18 +264,21 @@ client.on('interactionCreate', async (interaction) => {
     return interaction.reply({ content: 'Enviado', ephemeral: true });
   }
 
-  // MODAL PARTIDA
+  // 🏁 MODAL PARTIDA
   if (interaction.isModalSubmit() && interaction.customId === 'modal_match') {
 
-    const partida = interaction.fields.getTextInputValue('partida');
-    const equipo1 = interaction.fields.getTextInputValue('equipo1');
-    const equipo2 = interaction.fields.getTextInputValue('equipo2');
+    const user = interaction.user.id;
+    const data = partidas[user];
 
-    const rol1 = interaction.guild.roles.cache.find(r => r.name === equipo1);
-    const rol2 = interaction.guild.roles.cache.find(r => r.name === equipo2);
+    if (!data) return;
+
+    const partida = interaction.fields.getTextInputValue('partida');
+
+    const rol1 = interaction.guild.roles.cache.find(r => r.name === data.equipo1);
+    const rol2 = interaction.guild.roles.cache.find(r => r.name === data.equipo2);
 
     const msg = `📢 **Finaliza la partida ${partida}**
-${rol1 ? `<@&${rol1.id}>` : equipo1} VS ${rol2 ? `<@&${rol2.id}>` : equipo2}
+<@&${rol1.id}> VS <@&${rol2.id}>
 
 ⏱️ 5 minutos para cambios
 📌 Canal: 🔄┋cambios`;
@@ -256,9 +290,11 @@ ${rol1 ? `<@&${rol1.id}>` : equipo1} VS ${rol2 ? `<@&${rol2.id}>` : equipo2}
     setTimeout(() => {
       interaction.channel.send('⏱️ Tiempo finalizado');
     }, 300000);
+
+    delete partidas[user];
   }
 
-  // APROBAR / RECHAZAR
+  // ✅ APROBAR / ❌ RECHAZAR
   if (interaction.isButton()) {
 
     const userId = interaction.customId.split('_')[1];
