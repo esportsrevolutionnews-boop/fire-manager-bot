@@ -105,226 +105,195 @@ client.on('messageCreate', async (message) => {
 // 🔥 INTERACCIONES
 client.on('interactionCreate', async (interaction) => {
 
-  const guildId = interaction.guild?.id;
-  const CONFIG = CONFIGS[guildId];
-  if (!CONFIG) return;
+  try {
 
-  // 🎮 REGISTRO
-  if (interaction.isButton() && interaction.customId === 'registro') {
+    const guildId = interaction.guild?.id;
+    const CONFIG = CONFIGS[guildId];
+    if (!CONFIG) return;
 
-    registros[interaction.user.id] = {};
+    // 🎮 REGISTRO
+    if (interaction.isButton() && interaction.customId === 'registro') {
 
-    const equipoMenu = new StringSelectMenuBuilder()
-      .setCustomId('equipo')
-      .setPlaceholder('Equipo')
-      .addOptions(Object.keys(CONFIG.equipos).map(e => ({ label: e, value: e })));
+      registros[interaction.user.id] = {};
 
-    const rolMenu = new StringSelectMenuBuilder()
-      .setCustomId('rol')
-      .setPlaceholder('Rol')
-      .addOptions(CONFIG.roles.map(r => ({ label: r, value: r })));
+      const equipoMenu = new StringSelectMenuBuilder()
+        .setCustomId('equipo')
+        .setPlaceholder('Equipo')
+        .addOptions(Object.keys(CONFIG.equipos).map(e => ({ label: e, value: e })));
 
-    let components = [
-      new ActionRowBuilder().addComponents(equipoMenu),
-      new ActionRowBuilder().addComponents(rolMenu)
-    ];
+      const rolMenu = new StringSelectMenuBuilder()
+        .setCustomId('rol')
+        .setPlaceholder('Rol')
+        .addOptions(CONFIG.roles.map(r => ({ label: r, value: r })));
 
-    if (CONFIG.grupos) {
-      const grupoMenu = new StringSelectMenuBuilder()
-        .setCustomId('grupo')
-        .setPlaceholder('Grupo')
-        .addOptions(CONFIG.grupos.map(g => ({ label: `GRUPO ${g}`, value: g })));
+      let components = [
+        new ActionRowBuilder().addComponents(equipoMenu),
+        new ActionRowBuilder().addComponents(rolMenu)
+      ];
 
-      components.push(new ActionRowBuilder().addComponents(grupoMenu));
+      if (CONFIG.grupos) {
+        const grupoMenu = new StringSelectMenuBuilder()
+          .setCustomId('grupo')
+          .setPlaceholder('Grupo')
+          .addOptions(CONFIG.grupos.map(g => ({ label: `GRUPO ${g}`, value: g })));
+
+        components.push(new ActionRowBuilder().addComponents(grupoMenu));
+      }
+
+      return interaction.reply({ content: 'Selecciona:', components, ephemeral: true });
     }
 
-    return interaction.reply({ content: 'Selecciona:', components, ephemeral: true });
-  }
+    // 🏁 BOTÓN PARTIDA
+    if (interaction.isButton() && interaction.customId === 'finalizar_partida') {
 
-  // 🏁 BOTÓN PARTIDA
-  if (interaction.isButton() && interaction.customId === 'finalizar_partida') {
+      partidas[interaction.user.id] = {};
 
-    partidas[interaction.user.id] = {};
+      const equipo1Menu = new StringSelectMenuBuilder()
+        .setCustomId('match_equipo1')
+        .setPlaceholder('Equipo 1')
+        .addOptions(Object.keys(CONFIG.equipos).map(e => ({ label: e, value: e })));
 
-    const equipo1Menu = new StringSelectMenuBuilder()
-      .setCustomId('match_equipo1')
-      .setPlaceholder('Equipo 1')
-      .addOptions(Object.keys(CONFIG.equipos).map(e => ({ label: e, value: e })));
+      const equipo2Menu = new StringSelectMenuBuilder()
+        .setCustomId('match_equipo2')
+        .setPlaceholder('Equipo 2')
+        .addOptions(Object.keys(CONFIG.equipos).map(e => ({ label: e, value: e })));
 
-    const equipo2Menu = new StringSelectMenuBuilder()
-      .setCustomId('match_equipo2')
-      .setPlaceholder('Equipo 2')
-      .addOptions(Object.keys(CONFIG.equipos).map(e => ({ label: e, value: e })));
+      return interaction.reply({
+        content: 'Selecciona equipos:',
+        components: [
+          new ActionRowBuilder().addComponents(equipo1Menu),
+          new ActionRowBuilder().addComponents(equipo2Menu)
+        ],
+        ephemeral: true
+      });
+    }
 
-    return interaction.reply({
-      content: 'Selecciona equipos:',
-      components: [
-        new ActionRowBuilder().addComponents(equipo1Menu),
-        new ActionRowBuilder().addComponents(equipo2Menu)
-      ],
-      ephemeral: true
-    });
-  }
+    // 🔽 SELECTS
+    if (interaction.isStringSelectMenu()) {
 
-  // 🔽 SELECTS
-  if (interaction.isStringSelectMenu()) {
+      const user = interaction.user.id;
 
-    const user = interaction.user.id;
+      // MATCH
+      if (interaction.customId.startsWith('match_')) {
 
-    // MATCH SELECTS
-    if (interaction.customId.startsWith('match_')) {
+        partidas[user] ??= {};
 
-      partidas[user] ??= {};
+        if (interaction.customId === 'match_equipo1') {
+          partidas[user].equipo1 = interaction.values[0];
+        }
 
-      if (interaction.customId === 'match_equipo1') {
-        partidas[user].equipo1 = interaction.values[0];
+        if (interaction.customId === 'match_equipo2') {
+          partidas[user].equipo2 = interaction.values[0];
+        }
+
+        const data = partidas[user];
+
+        if (data.equipo1 && data.equipo2) {
+
+          const modal = new ModalBuilder()
+            .setCustomId('modal_match')
+            .setTitle('Finalizar Partida');
+
+          const partida = new TextInputBuilder()
+            .setCustomId('partida')
+            .setLabel('Número de partida')
+            .setStyle(TextInputStyle.Short);
+
+          modal.addComponents(new ActionRowBuilder().addComponents(partida));
+
+          return interaction.showModal(modal);
+        }
+
+        return interaction.reply({ content: 'Equipo guardado', ephemeral: true });
       }
 
-      if (interaction.customId === 'match_equipo2') {
-        partidas[user].equipo2 = interaction.values[0];
-      }
+      // REGISTRO
+      registros[user] ??= {};
+      registros[user][interaction.customId] = interaction.values[0];
 
-      const data = partidas[user];
+      const data = registros[user];
 
-      if (data.equipo1 && data.equipo2) {
+      if (data.equipo && data.rol && (CONFIG.grupos ? data.grupo : true)) {
 
         const modal = new ModalBuilder()
-          .setCustomId('modal_match')
-          .setTitle('Finalizar Partida');
+          .setCustomId('modal_nick')
+          .setTitle('Registro');
 
-        const partida = new TextInputBuilder()
-          .setCustomId('partida')
-          .setLabel('Número de partida')
+        const input = new TextInputBuilder()
+          .setCustomId('nickname')
+          .setLabel('Nickname')
           .setStyle(TextInputStyle.Short);
 
-        modal.addComponents(new ActionRowBuilder().addComponents(partida));
+        modal.addComponents(new ActionRowBuilder().addComponents(input));
 
         return interaction.showModal(modal);
       }
 
-      return interaction.reply({ content: 'Equipo guardado', ephemeral: true });
+      return interaction.reply({ content: 'Guardado', ephemeral: true });
     }
 
-    // REGISTRO SELECTS
-    registros[user] ??= {};
-    registros[user][interaction.customId] = interaction.values[0];
+    // 🏁 MODAL PARTIDA
+    if (interaction.isModalSubmit() && interaction.customId === 'modal_match') {
 
-    const data = registros[user];
+      const user = interaction.user.id;
+      const data = partidas[user];
 
-    if (data.equipo && data.rol && (CONFIG.grupos ? data.grupo : true)) {
+      if (!data) {
+        return interaction.reply({ content: 'Error', ephemeral: true });
+      }
 
-      const modal = new ModalBuilder()
-        .setCustomId('modal_nick')
-        .setTitle('Registro');
+      const partida = interaction.fields.getTextInputValue('partida');
 
-      const input = new TextInputBuilder()
-        .setCustomId('nickname')
-        .setLabel('Nickname')
-        .setStyle(TextInputStyle.Short);
+      const rol1 = interaction.guild.roles.cache.find(r => r.name === data.equipo1);
+      const rol2 = interaction.guild.roles.cache.find(r => r.name === data.equipo2);
 
-      modal.addComponents(new ActionRowBuilder().addComponents(input));
+      if (!rol1 || !rol2) {
+        return interaction.reply({
+          content: '❌ Roles no encontrados',
+          ephemeral: true
+        });
+      }
 
-      return interaction.showModal(modal);
+      const canalNotificaciones = interaction.guild.channels.cache.find(c => c.name === '📢┃notificaciones');
+      const canalCambios = interaction.guild.channels.cache.find(c => c.name === '🔄┋cambios');
+
+      if (!canalNotificaciones) {
+        return interaction.reply({
+          content: '❌ Canal de notificaciones no existe',
+          ephemeral: true
+        });
+      }
+
+      const msg = `📢  **Finaliza la partida ${partida}**
+<@&${rol1.id}> VS <@&${rol2.id}>  
+
+⏱️ **Comienzan los 5 minutos para realizar cambios.**
+
+_Staffs y suplentes pueden unirse a sus canales de voz._
+
+📌 Reporten cualquier cambio en el canal: ${canalCambios ? `<#${canalCambios.id}>` : '#🔄┋cambios'}`;
+
+      await canalNotificaciones.send(msg);
+
+      await interaction.reply({ content: '✅ Enviado', ephemeral: true });
+
+      setTimeout(() => {
+        canalNotificaciones.send('⏱️ **Finaliza el tiempo para realizar cambios**');
+      }, 300000);
+
+      delete partidas[user];
     }
 
-    return interaction.reply({ content: 'Guardado', ephemeral: true });
-  }
+  } catch (err) {
+    console.error(err);
 
-  // 🧾 MODAL REGISTRO
-  if (interaction.isModalSubmit() && interaction.customId === 'modal_nick') {
-
-    const user = interaction.user.id;
-    const data = registros[user];
-
-    const nickname = interaction.fields.getTextInputValue('nickname');
-
-    data.nickname = nickname;
-    data.tricode = CONFIG.equipos[data.equipo];
-
-    solicitudes[user] = data;
-
-    const canal = interaction.guild.channels.cache.find(c => c.name === '📋┃solicitudes');
-
-    const embed = new EmbedBuilder()
-      .setTitle('Solicitud')
-      .addFields(
-        { name: 'Usuario', value: `<@${user}>` },
-        { name: 'Equipo', value: data.equipo },
-        { name: 'Rol', value: data.rol },
-        ...(CONFIG.grupos ? [{ name: 'Grupo', value: data.grupo }] : []),
-        { name: 'Nick', value: nickname }
-      );
-
-    const botones = new ActionRowBuilder().addComponents(
-      new ButtonBuilder().setCustomId(`aprobar_${user}`).setLabel('Aprobar').setStyle(ButtonStyle.Success),
-      new ButtonBuilder().setCustomId(`rechazar_${user}`).setLabel('Rechazar').setStyle(ButtonStyle.Danger)
-    );
-
-    canal.send({ embeds: [embed], components: [botones] });
-
-    return interaction.reply({ content: 'Enviado', ephemeral: true });
-  }
-
-  // 🏁 MODAL PARTIDA
-  if (interaction.isModalSubmit() && interaction.customId === 'modal_match') {
-
-    const user = interaction.user.id;
-    const data = partidas[user];
-
-    if (!data) return;
-
-    const partida = interaction.fields.getTextInputValue('partida');
-
-    const rol1 = interaction.guild.roles.cache.find(r => r.name === data.equipo1);
-    const rol2 = interaction.guild.roles.cache.find(r => r.name === data.equipo2);
-
-    const msg = `📢 **Finaliza la partida ${partida}**
-<@&${rol1.id}> VS <@&${rol2.id}>
-
-⏱️ 5 minutos para cambios
-📌 Canal: 🔄┋cambios`;
-
-    await interaction.channel.send(msg);
-
-    await interaction.reply({ content: 'Partida enviada', ephemeral: true });
-
-    setTimeout(() => {
-      interaction.channel.send('⏱️ Tiempo finalizado');
-    }, 300000);
-
-    delete partidas[user];
-  }
-
-  // ✅ APROBAR / ❌ RECHAZAR
-  if (interaction.isButton()) {
-
-    const userId = interaction.customId.split('_')[1];
-    const data = solicitudes[userId];
-
-    if (!data) return;
-
-    const member = await interaction.guild.members.fetch(userId);
-
-    const roles = [
-      data.equipo,
-      CONFIG.rolBase,
-      data.rol,
-      CONFIG.grupos ? `GRUPO ${data.grupo}` : null
-    ];
-
-    for (const r of roles) {
-      if (!r) continue;
-      const role = interaction.guild.roles.cache.find(x => x.name === r);
-      if (role) await member.roles.add(role);
+    if (interaction.isRepliable()) {
+      interaction.reply({
+        content: '❌ Error interno',
+        ephemeral: true
+      });
     }
-
-    await member.setNickname(`[ ${data.tricode} ] ${data.nickname}`);
-
-    delete solicitudes[userId];
-
-    return interaction.reply({ content: 'Procesado', ephemeral: true });
   }
-
 });
 
 client.login(TOKEN);
