@@ -232,7 +232,7 @@ if (rolGrupo) await member.roles.add(rolGrupo);
   data.equipo &&
   data.rol &&
   (CONFIG.grupos ? data.grupo : true)
-)
+) {
 
       const modal = new ModalBuilder()
         .setCustomId('modal_nick')
