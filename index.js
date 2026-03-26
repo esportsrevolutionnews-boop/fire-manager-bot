@@ -23,13 +23,11 @@ const CONFIGS = {
     rolBase: "FFWS",
     grupos: ["A", "B", "C"],
     roles: ["JUGADOR", "COACH", "MANAGER", "ANALISTA", "STAFF"],
-
     lobbyCanales: {
       "A-B": "📜┃lobby-a-b",
       "B-C": "📜┃lobby-b-c",
       "C-A": "📜┃lobby-c-a"
     },
-
     equipos: {
       "9z GLOBANT": "9zG",
       "ALL GLORY GAMERHOOD": "AGG",
@@ -57,7 +55,6 @@ const CONFIGS = {
     rolBase: "PUROS CRACKS",
     roles: ["JUGADOR", "CAPITAN", "COACH", "MANAGER", "ANALISTA", "STAFF"],
     lobbyCanal: "📜┃lobby-id-pass",
-
     equipos: {
       "ARGENTINA": "AR",
       "CHILE": "CL",
@@ -74,50 +71,54 @@ const CONFIGS = {
 
   "1486505450064056431": {
     soloEquipo: true,
+    autoRegistro: true,
     equipos: { "ARGENTINA": "AR" }
   },
 
   "1486505742235336886": {
     soloEquipo: true,
+    autoRegistro: true,
     equipos: { "CHILE": "CL" }
   },
 
   "1486507104121651311": {
     soloEquipo: true,
+    autoRegistro: true,
     equipos: { "COLOMBIA": "CO" }
   },
 
   "1486507356341932163": {
     soloEquipo: true,
+    autoRegistro: true,
     equipos: { "ECUADOR": "EC" }
   },
 
   "1486507729584521217": {
     soloEquipo: true,
+    autoRegistro: true,
     equipos: { "LATAM 1": "L1" }
   },
 
   "1486508224222859294": {
     soloEquipo: true,
+    autoRegistro: true,
     equipos: { "LATAM 2": "L2" }
   },
 
   "1486508476879339622": {
     soloEquipo: true,
+    autoRegistro: true,
     equipos: { "MÉXICO": "MX" }
   },
 
   "1486508992632193127": { 
     soloEquipo: true,
+    autoRegistro: true,
     equipos: { "PERÚ": "PE" }
   }
 };
 
-// 🎮 VARIABLES
-const MAPAS = ["Bermuda","Purgatorio","Alpes","Nexterra","Kalahari","Solara"];
-const SERVIDORES = ["US","SAC"];
-
-let dataStore = {};
+let store = {};
 
 client.once('clientReady', () => {
   console.log(`🔥 Bot activo como ${client.user.tag}`);
@@ -171,52 +172,72 @@ client.on('interactionCreate', async (interaction) => {
     const CONFIG = CONFIGS[interaction.guild.id];
     if (!CONFIG) return;
 
-    // =====================
-    // 🎮 REGISTRO
-    // =====================
-
+    // =================
+    // 🎮 REGISTRO BOTÓN
+    // =================
     if (interaction.isButton() && interaction.customId === 'registro') {
 
       const equipos = Object.keys(CONFIG.equipos);
 
       const equipoMenu = new StringSelectMenuBuilder()
-        .setCustomId('reg_equipo')
+        .setCustomId('equipo')
         .setPlaceholder('Equipo')
         .addOptions(equipos.map(e => ({ label: e, value: e })));
 
       const rolMenu = new StringSelectMenuBuilder()
-        .setCustomId('reg_rol')
+        .setCustomId('rol')
         .setPlaceholder('Rol')
         .addOptions((CONFIG.roles || ["JUGADOR"]).map(r => ({ label: r, value: r })));
 
+      let components = [
+        new ActionRowBuilder().addComponents(equipoMenu),
+        new ActionRowBuilder().addComponents(rolMenu)
+      ];
+
+      // 👉 SOLO FFWS
+      if (CONFIG.grupos) {
+        const grupoMenu = new StringSelectMenuBuilder()
+          .setCustomId('grupo')
+          .setPlaceholder('Grupo')
+          .addOptions(CONFIG.grupos.map(g => ({
+            label: `GRUPO ${g}`,
+            value: g
+          })));
+
+        components.push(new ActionRowBuilder().addComponents(grupoMenu));
+      }
+
       return interaction.reply({
         content: 'Registro:',
-        components: [
-          new ActionRowBuilder().addComponents(equipoMenu),
-          new ActionRowBuilder().addComponents(rolMenu)
-        ],
+        components,
         ephemeral: true
       });
     }
 
-    if (interaction.isStringSelectMenu() && interaction.customId.startsWith('reg_')) {
+    // =================
+    // SELECT REGISTRO
+    // =================
+    if (interaction.isStringSelectMenu()) {
 
       const u = interaction.user.id;
-      dataStore[u] ??= {};
+      store[u] ??= {};
+      store[u][interaction.customId] = interaction.values[0];
 
-      dataStore[u][interaction.customId] = interaction.values[0];
+      const data = store[u];
 
-      const data = dataStore[u];
-
-      if (data.reg_equipo && data.reg_rol) {
+      if (
+        data.equipo &&
+        data.rol &&
+        (CONFIG.grupos ? data.grupo : true)
+      ) {
 
         const modal = new ModalBuilder()
           .setCustomId('modal_registro')
-          .setTitle('Registro');
+          .setTitle('Nickname');
 
         const nick = new TextInputBuilder()
           .setCustomId('nickname')
-          .setLabel('Nickname')
+          .setLabel('Tu nickname')
           .setStyle(TextInputStyle.Short);
 
         modal.addComponents(new ActionRowBuilder().addComponents(nick));
@@ -224,106 +245,105 @@ client.on('interactionCreate', async (interaction) => {
         return interaction.showModal(modal);
       }
 
-      return interaction.reply({ content:'Guardado', ephemeral:true });
+      return interaction.reply({ content: 'Guardado', ephemeral: true });
     }
 
+    // =================
+    // FINAL REGISTRO
+    // =================
     if (interaction.isModalSubmit() && interaction.customId === 'modal_registro') {
 
-      const data = dataStore[interaction.user.id];
+      const data = store[interaction.user.id];
       const nickname = interaction.fields.getTextInputValue('nickname');
 
-      const rolEquipo = interaction.guild.roles.cache.find(r => r.name === data.reg_equipo);
-      const rolTipo = interaction.guild.roles.cache.find(r => r.name === data.reg_rol);
+      const rolEquipo = interaction.guild.roles.cache.find(r => r.name === data.equipo);
+      const rolTipo = interaction.guild.roles.cache.find(r => r.name === data.rol);
 
-      if (rolEquipo) await interaction.member.roles.add(rolEquipo);
+      const tri = CONFIG.equipos[data.equipo];
 
-      if (!CONFIG.soloEquipo && rolTipo) {
-        await interaction.member.roles.add(rolTipo);
-      }
+      // 🔴 AUTO REGISTRO
+      if (CONFIG.autoRegistro) {
 
-      const tri = CONFIG.equipos[data.reg_equipo];
+        if (rolEquipo) await interaction.member.roles.add(rolEquipo);
 
-      await interaction.member.setNickname(`[ ${tri} ] ${nickname}`);
-
-      return interaction.reply({ content:'✅ Registro completado', ephemeral:true });
-    }
-
-    // =====================
-    // 🏁 MATCH
-    // =====================
-
-    if (interaction.isButton() && interaction.customId === 'match') {
-
-      const equipos = Object.keys(CONFIG.equipos);
-
-      const e1 = new StringSelectMenuBuilder()
-        .setCustomId('m1')
-        .addOptions(equipos.map(e => ({ label:e, value:e })));
-
-      const e2 = new StringSelectMenuBuilder()
-        .setCustomId('m2')
-        .addOptions(equipos.map(e => ({ label:e, value:e })));
-
-      return interaction.reply({
-        content:'Selecciona equipos',
-        components:[
-          new ActionRowBuilder().addComponents(e1),
-          new ActionRowBuilder().addComponents(e2)
-        ],
-        ephemeral:true
-      });
-    }
-
-    // =====================
-    // 📜 LOBBY
-    // =====================
-
-    if (interaction.isButton() && interaction.customId === 'lobby') {
-
-      if (CONFIG.grupos) {
-
-        const g1 = new StringSelectMenuBuilder()
-          .setCustomId('g1')
-          .addOptions(CONFIG.grupos.map(g => ({ label:`GRUPO ${g}`, value:g })));
-
-        const g2 = new StringSelectMenuBuilder()
-          .setCustomId('g2')
-          .addOptions(CONFIG.grupos.map(g => ({ label:`GRUPO ${g}`, value:g })));
+        await interaction.member.setNickname(`[ ${tri} ] ${nickname}`);
 
         return interaction.reply({
-          content:'Selecciona grupos',
-          components:[
-            new ActionRowBuilder().addComponents(g1),
-            new ActionRowBuilder().addComponents(g2)
-          ],
-          ephemeral:true
+          content: '✅ Registro completado automáticamente',
+          ephemeral: true
         });
       }
 
-      const equipos = Object.keys(CONFIG.equipos);
+      // 🟢 CON APROBACIÓN
+      const canal = interaction.guild.channels.cache.find(c => c.name === '📋┃solicitudes');
 
-      const e1 = new StringSelectMenuBuilder()
-        .setCustomId('l1')
-        .addOptions(equipos.map(e => ({ label:e, value:e })));
+      if (!canal) {
+        return interaction.reply({
+          content: '❌ No existe canal solicitudes',
+          ephemeral: true
+        });
+      }
 
-      const e2 = new StringSelectMenuBuilder()
-        .setCustomId('l2')
-        .addOptions(equipos.map(e => ({ label:e, value:e })));
+      const embed = {
+        title: '📥 Solicitud',
+        description: `
+👤 <@${interaction.user.id}>
+🏷 ${nickname}
+🎮 ${data.equipo}
+🎯 ${data.rol}
+${data.grupo ? `👥 Grupo ${data.grupo}` : ''}
+        `
+      };
+
+      const aprobar = new ButtonBuilder()
+        .setCustomId(`ok_${interaction.user.id}`)
+        .setLabel('✅')
+        .setStyle(ButtonStyle.Success);
+
+      canal.send({
+        embeds: [embed],
+        components: [new ActionRowBuilder().addComponents(aprobar)]
+      });
 
       return interaction.reply({
-        content:'Selecciona equipos',
-        components:[
-          new ActionRowBuilder().addComponents(e1),
-          new ActionRowBuilder().addComponents(e2)
-        ],
-        ephemeral:true
+        content: '📨 Enviado a revisión',
+        ephemeral: true
+      });
+    }
+
+    // =================
+    // APROBACIÓN
+    // =================
+    if (interaction.isButton() && interaction.customId.startsWith('ok_')) {
+
+      const id = interaction.customId.split('_')[1];
+      const member = await interaction.guild.members.fetch(id);
+      const data = store[id];
+
+      const rolEquipo = interaction.guild.roles.cache.find(r => r.name === data.equipo);
+      const rolTipo = interaction.guild.roles.cache.find(r => r.name === data.rol);
+
+      if (rolEquipo) await member.roles.add(rolEquipo);
+
+      if (!CONFIG.soloEquipo && rolTipo) {
+        await member.roles.add(rolTipo);
+      }
+
+      const tri = CONFIG.equipos[data.equipo];
+
+      await member.setNickname(`[ ${tri} ] ${member.user.username}`);
+
+      return interaction.update({
+        content: '✅ Aprobado',
+        components: [],
+        embeds: []
       });
     }
 
   } catch (err) {
     console.error(err);
     if (interaction.isRepliable()) {
-      interaction.reply({ content:'❌ Error', ephemeral:true });
+      interaction.reply({ content: '❌ Error', ephemeral: true });
     }
   }
 });
