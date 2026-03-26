@@ -34,7 +34,7 @@ const CONFIGS = {
       "B-C": "📜┃lobby-b-c",
       "C-A": "📜┃lobby-c-a"
     },
-    roles: ["JUGADOR", "COACH", "MANAGER", "ANALISTA", "STAFF"]
+    roles: ["JUGADOR", "COACH", "MANAGER", "ANALISTA", "STAFF"],
     equipos: {
       "9z GLOBANT": "9zG",
       "ALL GLORY GAMERHOOD": "AGG",
@@ -292,6 +292,12 @@ client.on('interactionCreate', async (interaction) => {
 
     if (rolEquipo) await member.roles.add(rolEquipo);
     if (rolTipo) await member.roles.add(rolTipo);
+
+    const rolBase = interaction.guild.roles.cache.find(
+    r => r.name.toLowerCase() === CONFIG.rolBase?.toLowerCase()
+    );
+
+    if (rolBase) await member.roles.add(rolBase);
 
     const tri = CONFIG.equipos[data.reg_equipo];
     await member.setNickname(`[ ${tri} ] ${data.nickname}`);
