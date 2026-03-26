@@ -75,8 +75,8 @@ const CONFIGS = {
   "1486507356341932163": { soloEquipo: true, equipos: { "ECUADOR": "EC" } },
   "1486507729584521217": { soloEquipo: true, equipos: { "LATAM 1": "L1" } },
   "1486508224222859294": { soloEquipo: true, equipos: { "LATAM 2": "L2" } },
-  "1486508476879339622": { soloEquipo: true, equipos: { "MÉXICO": "MX" } },
-  "1486508992632193127": { soloEquipo: true, equipos: { "PERÚ": "PE" } }
+  "1486508476879339622": { soloEquipo: true, equipos: { "MEXICO": "MX" } },
+  "1486508992632193127": { soloEquipo: true, equipos: { "PERU": "PE" } }
 };
 
 let registros = {};
