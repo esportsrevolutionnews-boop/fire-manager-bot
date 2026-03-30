@@ -48,7 +48,7 @@ const Registro = mongoose.model("Registro", registroSchema);
 // =======================
 const CONFIGS = {
   "1485225770287894530": {
-    rolBase: "FFWS",
+    rolBase: "EWC",
     grupos: ["A", "B", "C"],
     roles: ["JUGADOR", "COACH", "MANAGER", "ANALISTA", "STAFF"],
     equipos: {
@@ -214,32 +214,45 @@ client.on('interactionCreate', async (interaction) => {
       return interaction.reply({ content: 'Selecciona:', components, ephemeral: true });
     }
 
-    // =======================
-    // 🏁 PARTIDA
-    // =======================
-    if (interaction.isButton() && interaction.customId === 'finalizar_partida') {
+// =======================
+// 🏁 PARTIDA
+// =======================
+if (interaction.isButton() && interaction.customId === 'finalizar_partida') {
 
-      partidas[interaction.user.id] = {};
+  partidas[interaction.user.id] = {};
 
-      const equipo1Menu = new StringSelectMenuBuilder()
-        .setCustomId('match_equipo1')
-        .setPlaceholder('Equipo 1')
-        .addOptions(Object.keys(CONFIG.equipos).map(e => ({ label: e, value: e })));
+  // 🔥 opciones (equipos + grupos)
+  const opciones = [
+    ...Object.keys(CONFIG.equipos).map(e => ({
+      label: e,
+      value: e
+    })),
 
-      const equipo2Menu = new StringSelectMenuBuilder()
-        .setCustomId('match_equipo2')
-        .setPlaceholder('Equipo 2')
-        .addOptions(Object.keys(CONFIG.equipos).map(e => ({ label: e, value: e })));
+    ...CONFIG.grupos.map(g => ({
+      label: `GRUPO ${g}`,
+      value: `GRUPO ${g}`
+    }))
+  ];
 
-      return interaction.reply({
-        content: 'Selecciona equipos:',
-        components: [
-          new ActionRowBuilder().addComponents(equipo1Menu),
-          new ActionRowBuilder().addComponents(equipo2Menu)
-        ],
-        ephemeral: true
-      });
-    }
+  const equipo1Menu = new StringSelectMenuBuilder()
+    .setCustomId('match_equipo1')
+    .setPlaceholder('Equipo / Grupo 1')
+    .addOptions(opciones);
+
+  const equipo2Menu = new StringSelectMenuBuilder()
+    .setCustomId('match_equipo2')
+    .setPlaceholder('Equipo / Grupo 2')
+    .addOptions(opciones);
+
+  return interaction.reply({
+    content: 'Selecciona equipos o grupos:',
+    components: [
+      new ActionRowBuilder().addComponents(equipo1Menu),
+      new ActionRowBuilder().addComponents(equipo2Menu)
+    ],
+    ephemeral: true
+  });
+}
 
     // =======================
     // 🔽 SELECTS
