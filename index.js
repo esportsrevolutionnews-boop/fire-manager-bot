@@ -147,13 +147,12 @@ client.on('interactionCreate', async (interaction) => {
       if (rolTipo) await member.roles.add(rolTipo);
       if (rolBase) await member.roles.add(rolBase);
 
-      const tri = CONFIG.equipos[data.equipo];
+      const tri = CONFIG.equipos[data.equipo] || data.equipo;
       await member.setNickname(`[ ${tri} ] ${data.nickname}`);
 
       data.estado = "aprobado";
       await data.save();
 
-      const tri = CONFIG.equipos[data.equipo] || data.equipo;
       const staff = interaction.user.username;
 
       await interaction.update({
