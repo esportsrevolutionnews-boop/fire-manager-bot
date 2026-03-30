@@ -11,7 +11,7 @@ const {
   TextInputStyle
 } = require('discord.js');
 
-const mongoose = require('mongoose');
+const mongoose = require('mongoose'); // 🔥 MONGO
 
 const client = new Client({
   intents: [
@@ -22,15 +22,14 @@ const client = new Client({
 });
 
 const TOKEN = process.env.TOKEN;
-const MONGO_URI = process.env.MONGO_URI;
+const MONGO_URI = process.env.MONGO_URI; // 🔥 MONGO
 
-// =======================
 // 🔥 MONGO
-// =======================
 mongoose.connect(MONGO_URI)
   .then(() => console.log("🟢 Mongo conectado"))
   .catch(err => console.error(err));
 
+// 🔥 MONGO
 const registroSchema = new mongoose.Schema({
   userId: String,
   guildId: String,
@@ -38,20 +37,15 @@ const registroSchema = new mongoose.Schema({
   rol: String,
   grupo: String,
   nickname: String,
-  estado: {
-    type: String,
-    default: "pendiente"
-  }
+  estado: { type: String, default: "pendiente" }
 });
 
 const Registro = mongoose.model("Registro", registroSchema);
 
-// =======================
-// ⚙️ CONFIG
-// =======================
+// 🔥 CONFIG POR SERVIDOR
 const CONFIGS = {
   "1485225770287894530": {
-    rolBase: "EWC",
+    rolBase: "FFWS",
     grupos: ["A", "B", "C"],
     roles: ["JUGADOR", "COACH", "MANAGER", "ANALISTA", "STAFF"],
     equipos: {
@@ -78,18 +72,14 @@ const CONFIGS = {
 };
 
 let registros = {};
+let solicitudes = {};
 let partidas = {};
 
-// =======================
-// 🚀 READY
-// =======================
 client.once('clientReady', () => {
   console.log(`🔥 Bot activo como ${client.user.tag}`);
 });
 
-// =======================
 // 📌 COMANDOS
-// =======================
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
@@ -118,9 +108,7 @@ client.on('messageCreate', async (message) => {
   }
 });
 
-// =======================
 // 🔥 INTERACCIONES
-// =======================
 client.on('interactionCreate', async (interaction) => {
   try {
 
@@ -160,7 +148,7 @@ client.on('interactionCreate', async (interaction) => {
       return interaction.reply({ content: 'Selecciona:', components, ephemeral: true });
     }
 
-    // 🏁 PARTIDA
+    // 🏁 BOTÓN PARTIDA
     if (interaction.isButton() && interaction.customId === 'finalizar_partida') {
 
       partidas[interaction.user.id] = {};
@@ -249,7 +237,7 @@ client.on('interactionCreate', async (interaction) => {
       return interaction.reply({ content: 'Guardado', ephemeral: true });
     }
 
-    // 🧾 MODAL REGISTRO (AQUÍ SE GUARDA EN MONGO)
+    // 🧾 MODAL REGISTRO (🔥 SOLO AQUÍ SE AÑADE MONGO)
     if (interaction.isModalSubmit() && interaction.customId === 'modal_nick') {
 
       const user = interaction.user.id;
@@ -261,6 +249,7 @@ client.on('interactionCreate', async (interaction) => {
 
       const nickname = interaction.fields.getTextInputValue('nickname');
 
+      // 🔥 GUARDAR EN MONGO (LO NUEVO)
       await Registro.create({
         userId: user,
         guildId: interaction.guild.id,
@@ -283,14 +272,30 @@ client.on('interactionCreate', async (interaction) => {
           { name: 'Nick', value: nickname }
         );
 
-      if (canal) await canal.send({ embeds: [embed] });
+      // 🔥 RESPETA TU SISTEMA (CON BOTONES)
+      const aprobar = new ButtonBuilder()
+        .setCustomId(`ok_${user}`)
+        .setLabel('✅ Aprobar')
+        .setStyle(ButtonStyle.Success);
+
+      const rechazar = new ButtonBuilder()
+        .setCustomId(`no_${user}`)
+        .setLabel('❌ Rechazar')
+        .setStyle(ButtonStyle.Danger);
+
+      if (canal) {
+        await canal.send({
+          embeds: [embed],
+          components: [new ActionRowBuilder().addComponents(aprobar, rechazar)]
+        });
+      }
 
       delete registros[user];
 
       return interaction.reply({ content: '📨 Enviado', ephemeral: true });
     }
 
-    // 🏁 MODAL PARTIDA
+    // 🏁 MODAL PARTIDA (SIN CAMBIOS)
     if (interaction.isModalSubmit() && interaction.customId === 'modal_match') {
 
       const user = interaction.user.id;
