@@ -153,8 +153,11 @@ client.on('interactionCreate', async (interaction) => {
       data.estado = "aprobado";
       await data.save();
 
+      const tri = CONFIG.equipos[data.equipo] || data.equipo;
+      const staff = interaction.user.username;
+
       await interaction.update({
-        content: '✅ Aprobado',
+        content: `✅ [ ${tri} ] ${data.nickname} aprobado por ${staff}`,
         embeds: [],
         components: []
       });
