@@ -11,7 +11,7 @@ const {
   TextInputStyle
 } = require('discord.js');
 
-const mongoose = require('mongoose'); // 🔥 MONGO
+const mongoose = require('mongoose');
 
 const client = new Client({
   intents: [
@@ -22,14 +22,15 @@ const client = new Client({
 });
 
 const TOKEN = process.env.TOKEN;
-const MONGO_URI = process.env.MONGO_URI; // 🔥 MONGO
+const MONGO_URI = process.env.MONGO_URI;
 
+// =======================
 // 🔥 MONGO
+// =======================
 mongoose.connect(MONGO_URI)
   .then(() => console.log("🟢 Mongo conectado"))
   .catch(err => console.error(err));
 
-// 🔥 MONGO
 const registroSchema = new mongoose.Schema({
   userId: String,
   guildId: String,
@@ -42,7 +43,9 @@ const registroSchema = new mongoose.Schema({
 
 const Registro = mongoose.model("Registro", registroSchema);
 
-// 🔥 CONFIG POR SERVIDOR
+// =======================
+// ⚙️ CONFIG
+// =======================
 const CONFIGS = {
   "1485225770287894530": {
     rolBase: "FFWS",
@@ -75,11 +78,14 @@ let registros = {};
 let solicitudes = {};
 let partidas = {};
 
+// =======================
 client.once('clientReady', () => {
   console.log(`🔥 Bot activo como ${client.user.tag}`);
 });
 
+// =======================
 // 📌 COMANDOS
+// =======================
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
@@ -108,7 +114,9 @@ client.on('messageCreate', async (message) => {
   }
 });
 
+// =======================
 // 🔥 INTERACCIONES
+// =======================
 client.on('interactionCreate', async (interaction) => {
   try {
 
@@ -116,7 +124,65 @@ client.on('interactionCreate', async (interaction) => {
     const CONFIG = CONFIGS[guildId];
     if (!CONFIG) return;
 
+    // =======================
+    // ✅ BOTONES (MONGO)
+    // =======================
+    if (interaction.isButton() && interaction.customId.startsWith('ok_')) {
+
+      const id = interaction.customId.split('_')[1];
+
+      const data = await Registro.findOne({ userId: id, guildId: interaction.guild.id });
+
+      if (!data) {
+        return interaction.reply({ content: '❌ No encontrado en DB', ephemeral: true });
+      }
+
+      const member = await interaction.guild.members.fetch(id);
+
+      const rolEquipo = interaction.guild.roles.cache.find(r => r.name === data.equipo);
+      const rolTipo = interaction.guild.roles.cache.find(r => r.name === data.rol);
+      const rolBase = interaction.guild.roles.cache.find(r => r.name === CONFIG.rolBase);
+
+      if (rolEquipo) await member.roles.add(rolEquipo);
+      if (rolTipo) await member.roles.add(rolTipo);
+      if (rolBase) await member.roles.add(rolBase);
+
+      const tri = CONFIG.equipos[data.equipo];
+      await member.setNickname(`[ ${tri} ] ${data.nickname}`);
+
+      data.estado = "aprobado";
+      await data.save();
+
+      await interaction.update({
+        content: '✅ Aprobado',
+        embeds: [],
+        components: []
+      });
+
+      return;
+    }
+
+    if (interaction.isButton() && interaction.customId.startsWith('no_')) {
+
+      const id = interaction.customId.split('_')[1];
+
+      await Registro.updateOne(
+        { userId: id, guildId: interaction.guild.id },
+        { estado: "rechazado" }
+      );
+
+      await interaction.update({
+        content: '❌ Rechazado',
+        embeds: [],
+        components: []
+      });
+
+      return;
+    }
+
+    // =======================
     // 🎮 REGISTRO
+    // =======================
     if (interaction.isButton() && interaction.customId === 'registro') {
 
       registros[interaction.user.id] = {};
@@ -148,7 +214,9 @@ client.on('interactionCreate', async (interaction) => {
       return interaction.reply({ content: 'Selecciona:', components, ephemeral: true });
     }
 
-    // 🏁 BOTÓN PARTIDA
+    // =======================
+    // 🏁 PARTIDA
+    // =======================
     if (interaction.isButton() && interaction.customId === 'finalizar_partida') {
 
       partidas[interaction.user.id] = {};
@@ -173,7 +241,9 @@ client.on('interactionCreate', async (interaction) => {
       });
     }
 
+    // =======================
     // 🔽 SELECTS
+    // =======================
     if (interaction.isStringSelectMenu()) {
 
       const user = interaction.user.id;
@@ -237,7 +307,9 @@ client.on('interactionCreate', async (interaction) => {
       return interaction.reply({ content: 'Guardado', ephemeral: true });
     }
 
-    // 🧾 MODAL REGISTRO (🔥 SOLO AQUÍ SE AÑADE MONGO)
+    // =======================
+    // 🧾 MODAL REGISTRO
+    // =======================
     if (interaction.isModalSubmit() && interaction.customId === 'modal_nick') {
 
       const user = interaction.user.id;
@@ -249,7 +321,6 @@ client.on('interactionCreate', async (interaction) => {
 
       const nickname = interaction.fields.getTextInputValue('nickname');
 
-      // 🔥 GUARDAR EN MONGO (LO NUEVO)
       await Registro.create({
         userId: user,
         guildId: interaction.guild.id,
@@ -272,7 +343,6 @@ client.on('interactionCreate', async (interaction) => {
           { name: 'Nick', value: nickname }
         );
 
-      // 🔥 RESPETA TU SISTEMA (CON BOTONES)
       const aprobar = new ButtonBuilder()
         .setCustomId(`ok_${user}`)
         .setLabel('✅ Aprobar')
@@ -295,7 +365,9 @@ client.on('interactionCreate', async (interaction) => {
       return interaction.reply({ content: '📨 Enviado', ephemeral: true });
     }
 
-    // 🏁 MODAL PARTIDA (SIN CAMBIOS)
+    // =======================
+    // 🏁 MODAL PARTIDA
+    // =======================
     if (interaction.isModalSubmit() && interaction.customId === 'modal_match') {
 
       const user = interaction.user.id;
