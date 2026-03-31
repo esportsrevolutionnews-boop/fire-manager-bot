@@ -451,8 +451,7 @@ if (interaction.isButton() && interaction.customId === 'finalizar_partida') {
       const data = registros[user];
 
       const tieneEquipo = !!data.equipo;
-      const tieneRol = CONFIG.guardarRolInfo ? !!data.rol :
-        (CONFIG.soloEquipo ? true: !!data.rol);
+      const tieneRol = !!data.rol;
       const tieneGrupo = CONFIG.grupos ? !!data.grupo : true;
 
       if (tieneEquipo && tieneRol && tieneGrupo){
