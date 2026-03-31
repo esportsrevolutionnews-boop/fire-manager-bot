@@ -230,7 +230,11 @@ client.on('interactionCreate', async (interaction) => {
       const member = await interaction.guild.members.fetch(id);
 
       const rolEquipo = interaction.guild.roles.cache.find(r => r.name === data.equipo);
-      const rolTipo = interaction.guild.roles.cache.find(r => r.name === data.rol);
+      let rolTipo = null;
+
+      if (!CONFIG.soloEquipo && data.rol) {
+        rolTipo = interaction.guild.roles.cache.find(r => r.name === data.rol);
+      }
       const rolBase = CONFIG.rolBase
         ? interaction.guild.roles.cache.find(r => r.name === CONFIG.rolBase)
         : null;
@@ -242,14 +246,16 @@ client.on('interactionCreate', async (interaction) => {
       }
 
       const tri = CONFIG.equipos[data.equipo] || data.equipo;
-      await member.setNickname(`[ ${tri} ] ${data.nickname}`);
+      await member.setNickname(`[ ${tri} ] ${data.nickname}`).catch(()=>{});
 
       data.estado = "aprobado";
       await data.save();
 
       const staff = interaction.user.username;
 
-      await interaction.update({
+      await interaction.deferUpdate();
+
+      await interaction.message.edit({
         content: `✅ [ ${tri} ] ${data.nickname} aprobado por ${staff}`,
         embeds: [],
         components: []
@@ -267,7 +273,9 @@ client.on('interactionCreate', async (interaction) => {
         { estado: "rechazado" }
       );
 
-      await interaction.update({
+      await interaction.deferUpdate();
+      
+      await interaction.message.edit({
         content: '❌ Rechazado',
         embeds: [],
         components: []
@@ -430,11 +438,12 @@ if (interaction.isButton() && interaction.customId === 'finalizar_partida') {
 
       const data = registros[user];
 
-      if (
-        data.equipo &&
-        (CONFIG.soloEquipo ? true : data.rol) &&
-        (CONFIG.grupos ? data.grupo : true)
-      ) {
+      const tieneEquipo = !!data.equipo;
+      const tieneRol = CONFIG.guardarRolInfo ? !!data.rol :
+        (CONFIG.soloEquipo ? true: !!data.rol);
+      const tieneGrupo = CONFIG.grupos ? !!data.grupo : true;
+
+      if (tieneEquipo && tieneRol && tieneGrupo){
 
         const modal = new ModalBuilder()
           .setCustomId('modal_nick')
@@ -450,7 +459,7 @@ if (interaction.isButton() && interaction.customId === 'finalizar_partida') {
         return interaction.showModal(modal);
       }
 
-      return interaction.reply({ content: 'Guardado', ephemeral: true });
+      return interaction.deferUpdate();
     }
 
     // =======================
@@ -484,7 +493,7 @@ if (interaction.isButton() && interaction.customId === 'finalizar_partida') {
         .addFields(
           { name: 'Usuario', value: `<@${user}>` },
           { name: 'Equipo', value: data.equipo },
-          { name: 'Rol', value: data.rol },
+          { name: 'Rol', value: data.rol || 'No especificado' },
           ...(data.grupo ? [{ name: 'Grupo', value: data.grupo }] : []),
           { name: 'Nick', value: nickname }
         );
