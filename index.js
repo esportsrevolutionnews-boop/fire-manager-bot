@@ -72,6 +72,96 @@ const CONFIGS = {
       "NOVA LEGION": "NVL"
     }
   },
+  "1219724901456547961":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "9z GLOBANT": "9zG"}
+  },
+  "1219725041126867075":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "ALL GLORY GAMERHOOD": "AGG"}
+  },
+  "1219727997205090394":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "BLUE CHEESE": "BC"}
+  },
+  "1219728063248732180":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "CACM ESPORTS": "CACM"}
+  },
+  "1219728327372312646":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "CHILL ESPORTS": "CHL"}
+  },
+  "1219727531197075466":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "ESTORM DRK": "ESG"}
+  },
+  "1219728219003944970":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "FD QUISQUEYA": "QFD"}
+  },
+  "1219728272737439865":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "FLORIDA FLF": "FLF"}
+  },
+  "1219728368665104405":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "FUEGO": "FGO"}
+  },
+  "1219727383549055188":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "GUN DYNASTY": "GD"}
+  },
+  "1219728167686635620":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "HNS ESPORTS": "HNS"}
+  },
+  "1219727723002466484":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "INFINITY E-SPORTS": "INF"}
+  },
+  "1219727926044655686":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "LEVIATÁN": "LEV"}
+  },
+  "1219727649115602995":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "LMG ESPORT": "LMG"}
+  },
+  "1219728115287461901":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "LYON": "LYON"}
+  },
+  "1219727862714601573":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "MONOUGG": "MGG"}
+  },
+  "1219727789213614081":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "MOVISTAR KOI": "KOI"}
+  },
+  "1219727308571803678":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "NOVA LEGION": "NVL"}
+  },
 };
 
 let registros = {};
@@ -141,11 +231,15 @@ client.on('interactionCreate', async (interaction) => {
 
       const rolEquipo = interaction.guild.roles.cache.find(r => r.name === data.equipo);
       const rolTipo = interaction.guild.roles.cache.find(r => r.name === data.rol);
-      const rolBase = interaction.guild.roles.cache.find(r => r.name === CONFIG.rolBase);
-
+      const rolBase = CONFIG.rolBase
+        ? interaction.guild.roles.cache.find(r => r.name === CONFIG.rolBase)
+        : null;
       if (rolEquipo) await member.roles.add(rolEquipo);
-      if (rolTipo) await member.roles.add(rolTipo);
-      if (rolBase) await member.roles.add(rolBase);
+
+      if (!CONFIG.soloEquipo) {
+        if (rolTipo) await member.roles.add(rolTipo);
+        if (rolBase) await member.roles.add(rolBase);
+      }
 
       const tri = CONFIG.equipos[data.equipo] || data.equipo;
       await member.setNickname(`[ ${tri} ] ${data.nickname}`);
@@ -182,40 +276,73 @@ client.on('interactionCreate', async (interaction) => {
       return;
     }
 
-    // =======================
-    // 🎮 REGISTRO
-    // =======================
-    if (interaction.isButton() && interaction.customId === 'registro') {
+// =======================
+// 🎮 REGISTRO
+// =======================
+if (interaction.isButton() && interaction.customId === 'registro') {
 
-      registros[interaction.user.id] = {};
+  registros[interaction.user.id] = {};
 
-      const equipoMenu = new StringSelectMenuBuilder()
-        .setCustomId('equipo')
-        .setPlaceholder('Equipo')
-        .addOptions(Object.keys(CONFIG.equipos).map(e => ({ label: e, value: e })));
+  let components = [];
 
-      const rolMenu = new StringSelectMenuBuilder()
-        .setCustomId('rol')
-        .setPlaceholder('Rol')
-        .addOptions(CONFIG.roles.map(r => ({ label: r, value: r })));
+  // ✅ EQUIPO (siempre)
+  const equipoMenu = new StringSelectMenuBuilder()
+    .setCustomId('equipo')
+    .setPlaceholder('Equipo')
+    .addOptions(Object.keys(CONFIG.equipos).map(e => ({
+      label: e,
+      value: e
+    })));
 
-      let components = [
-        new ActionRowBuilder().addComponents(equipoMenu),
-        new ActionRowBuilder().addComponents(rolMenu)
-      ];
+  components.push(
+    new ActionRowBuilder().addComponents(equipoMenu)
+  );
 
-      if (CONFIG.grupos) {
-        const grupoMenu = new StringSelectMenuBuilder()
-          .setCustomId('grupo')
-          .setPlaceholder('Grupo')
-          .addOptions(CONFIG.grupos.map(g => ({ label: `GRUPO ${g}`, value: g })));
+  // ✅ ROL (solo si aplica o guardar info)
+  if (!CONFIG.soloEquipo || CONFIG.guardarRolInfo) {
 
-        components.push(new ActionRowBuilder().addComponents(grupoMenu));
-      }
+    const rolesDisponibles = CONFIG.roles || [
+      "JUGADOR",
+      "COACH",
+      "MANAGER",
+      "ANALISTA",
+      "STAFF"
+    ];
 
-      return interaction.reply({ content: 'Selecciona:', components, ephemeral: true });
-    }
+    const rolMenu = new StringSelectMenuBuilder()
+      .setCustomId('rol')
+      .setPlaceholder('Rol')
+      .addOptions(rolesDisponibles.map(r => ({
+        label: r,
+        value: r
+      })));
 
+    components.push(
+      new ActionRowBuilder().addComponents(rolMenu)
+    );
+  }
+
+  // ✅ GRUPOS (solo si existen)
+  if (CONFIG.grupos) {
+    const grupoMenu = new StringSelectMenuBuilder()
+      .setCustomId('grupo')
+      .setPlaceholder('Grupo')
+      .addOptions(CONFIG.grupos.map(g => ({
+        label: `GRUPO ${g}`,
+        value: g
+      })));
+
+    components.push(
+      new ActionRowBuilder().addComponents(grupoMenu)
+    );
+  }
+
+  return interaction.reply({
+    content: 'Selecciona:',
+    components,
+    ephemeral: true
+  });
+}
 // =======================
 // 🏁 PARTIDA
 // =======================
@@ -230,7 +357,7 @@ if (interaction.isButton() && interaction.customId === 'finalizar_partida') {
       value: e
     })),
 
-    ...CONFIG.grupos.map(g => ({
+    ...(CONFIG.grupos || []).map(g => ({
       label: `GRUPO ${g}`,
       value: `GRUPO ${g}`
     }))
@@ -303,7 +430,11 @@ if (interaction.isButton() && interaction.customId === 'finalizar_partida') {
 
       const data = registros[user];
 
-      if (data.equipo && data.rol && (CONFIG.grupos ? data.grupo : true)) {
+      if (
+        data.equipo &&
+        (CONFIG.soloEquipo ? true : data.rol) &&
+        (CONFIG.grupos ? data.grupo : true)
+      ) {
 
         const modal = new ModalBuilder()
           .setCustomId('modal_nick')
