@@ -227,26 +227,38 @@ client.on('interactionCreate', async (interaction) => {
         return interaction.reply({ content: '❌ No encontrado en DB', ephemeral: true });
       }
 
-      const member = await interaction.guild.members.fetch(id);
-
+      let member;
+      try{
+        member = await interaction.guild.members.fetch(id);
+      }catch{
+        return interaction.reply({content:'❌ Usuario no encontrado',
+          ephemeral: true });
+    }
       const rolEquipo = interaction.guild.roles.cache.find(r => r.name === data.equipo);
-      let rolTipo = null;
 
-      if (!CONFIG.soloEquipo && data.rol) {
-        rolTipo = interaction.guild.roles.cache.find(r => r.name === data.rol);
-      }
+      const rolTipo = data.rol
+        ? interaction.guild.roles.cache.find(r => r.name === data.rol)
+        : null;
+
       const rolBase = CONFIG.rolBase
         ? interaction.guild.roles.cache.find(r => r.name === CONFIG.rolBase)
         : null;
+
       if (rolEquipo) await member.roles.add(rolEquipo);
 
-      if (!CONFIG.soloEquipo) {
-        if (rolTipo) await member.roles.add(rolTipo);
-        if (rolBase) await member.roles.add(rolBase);
-      }
+      // 🔥 ahora SIEMPRE aplica rol si existe
+      if (rolTipo) await member.roles.add(rolTipo);
+
+      // 🔥 solo EWC tiene rol base
+      if (!CONFIG.soloEquipo && rolBase) {
+        await member.roles.add(rolBase);
+    }
 
       const tri = CONFIG.equipos[data.equipo] || data.equipo;
-      await member.setNickname(`[ ${tri} ] ${data.nickname}`).catch(()=>{});
+
+      if (data.nickname){
+        await member.setNickname(`[ ${tri} ] ${data.nickname}`).catch(()=>{});
+      }
 
       data.estado = "aprobado";
       await data.save();
