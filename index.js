@@ -247,7 +247,13 @@ client.on('interactionCreate', async (interaction) => {
       if (rolEquipo) await member.roles.add(rolEquipo);
 
       // 🔥 ahora SIEMPRE aplica rol si existe
-      if (rolTipo) await member.roles.add(rolTipo);
+      if (rolTipo) {
+        try{
+          await member.roles.add(rolTipo);
+        }catch (err){
+          console.log('⚠️ No se pudo asignar equipo:', data.equipo);
+        }
+      }
 
       // 🔥 solo EWC tiene rol base
       if (!CONFIG.soloEquipo && rolBase) {
