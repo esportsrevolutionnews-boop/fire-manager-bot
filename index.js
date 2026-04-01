@@ -49,7 +49,7 @@ const Registro = mongoose.model("Registro", registroSchema);
 const CONFIGS = {
   "1485225770287894530": {
     rolBase: "EWC",
-    grupos: ["A", "B", "C"],
+    grupos: ["GRUPO A", "GRUPO B", "GRUPO C"],
     roles: ["JUGADOR", "COACH", "MANAGER", "ANALISTA", "STAFF"],
     equipos: {
       "9z GLOBANT": "9zG",
