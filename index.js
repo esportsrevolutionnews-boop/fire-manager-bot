@@ -13,6 +13,9 @@ const {
 
 const mongoose = require('mongoose');
 
+const express = require('express');
+const app = express();
+
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -601,6 +604,14 @@ _Staffs y suplentes pueden unirse a sus canales de voz._
       });
     }
   }
+});
+
+app.get('/', (req, res) => {
+  res.send('Bot activo');
+});
+
+app.listen(3000, () => {
+  console.log('🌐 Web corriendo');
 });
 
 client.login(TOKEN);
