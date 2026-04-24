@@ -16,6 +16,14 @@ const mongoose = require('mongoose');
 const express = require('express');
 const app = express();
 
+app.get('/', (req, res) => {
+  res.send('Bot activo');
+});
+
+app.listen(3000, () => {
+  console.log('🌐 Web corriendo');
+});
+
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
