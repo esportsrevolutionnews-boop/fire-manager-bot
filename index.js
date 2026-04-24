@@ -20,8 +20,10 @@ app.get('/', (req, res) => {
   res.send('Bot activo');
 });
 
-app.listen(3000, () => {
-  console.log('🌐 Web corriendo');
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`🌐 Web corriendo en puerto ${PORT}`);
 });
 
 const client = new Client({
