@@ -85,92 +85,92 @@ const CONFIGS = {
       "NOVA LEGION": "NVL"
     }
   },
-  "1219724901456547961":{
+  "1499722994266804265":{
     soloEquipo: true,
     guardarRolInfo: true,
     equipos: { "9z GLOBANT": "9zG"}
   },
-  "1219725041126867075":{
+  "1499725759609045134":{
     soloEquipo: true,
     guardarRolInfo: true,
     equipos: { "ALL GLORY GAMERHOOD": "AGG"}
   },
-  "1219727997205090394":{
+  "1499726070985920583":{
     soloEquipo: true,
     guardarRolInfo: true,
     equipos: { "BLUE CHEESE": "BC"}
   },
-  "1219728063248732180":{
+  "1499723809291374633":{
     soloEquipo: true,
     guardarRolInfo: true,
     equipos: { "CACM ESPORTS": "CACM"}
   },
-  "1219728327372312646":{
+  "1499724072106594404":{
     soloEquipo: true,
     guardarRolInfo: true,
     equipos: { "CHILL ESPORTS": "CHL"}
   },
-  "1219727531197075466":{
+  "1499726475044192297":{
     soloEquipo: true,
     guardarRolInfo: true,
     equipos: { "ESTORM DRK": "ESG"}
   },
-  "1219728219003944970":{
+  "1499724647443464305":{
     soloEquipo: true,
     guardarRolInfo: true,
     equipos: { "FD QUISQUEYA": "QFD"}
   },
-  "1219728272737439865":{
+  "1499714835154206740":{
     soloEquipo: true,
     guardarRolInfo: true,
     equipos: { "FLORIDA FLF": "FLF"}
   },
-  "1219728368665104405":{
+  "1499726755244544171":{
     soloEquipo: true,
     guardarRolInfo: true,
     equipos: { "FUEGO": "FGO"}
   },
-  "1219727383549055188":{
+  "1499719752291979367":{
     soloEquipo: true,
     guardarRolInfo: true,
     equipos: { "GUN DYNASTY": "GD"}
   },
-  "1219728167686635620":{
+  "1499727091346833459":{
     soloEquipo: true,
     guardarRolInfo: true,
     equipos: { "HNS ESPORTS": "HNS"}
   },
-  "1219727723002466484":{
+  "1499720671125573632":{
     soloEquipo: true,
     guardarRolInfo: true,
     equipos: { "INFINITY E-SPORTS": "INF"}
   },
-  "1219727926044655686":{
+  "1499727358473539775":{
     soloEquipo: true,
     guardarRolInfo: true,
     equipos: { "LEVIATÁN": "LEV"}
   },
-  "1219727649115602995":{
+  "1499724964717133904":{
     soloEquipo: true,
     guardarRolInfo: true,
     equipos: { "LMG ESPORT": "LMG"}
   },
-  "1219728115287461901":{
+  "1499725237800140841":{
     soloEquipo: true,
     guardarRolInfo: true,
     equipos: { "LYON": "LYON"}
   },
-  "1219727862714601573":{
+  "1499721276481077278":{
     soloEquipo: true,
     guardarRolInfo: true,
     equipos: { "MONOUGG": "MGG"}
   },
-  "1219727789213614081":{
+  "1499722164549587044":{
     soloEquipo: true,
     guardarRolInfo: true,
     equipos: { "MOVISTAR KOI": "KOI"}
   },
-  "1219727308571803678":{
+  "1499722549557465270":{
     soloEquipo: true,
     guardarRolInfo: true,
     equipos: { "NOVA LEGION": "NVL"}
@@ -253,24 +253,38 @@ client.on('interactionCreate', async (interaction) => {
         ? interaction.guild.roles.cache.find(r => r.name === data.rol)
         : null;
 
+      const rolGrupo = data.grupo
+        ? interaction.guild.roles.cache.find(r => r.name === `GRUPO ${data.grupo}`)
+        : null;
+
       const rolBase = CONFIG.rolBase
         ? interaction.guild.roles.cache.find(r => r.name === CONFIG.rolBase)
         : null;
 
       if (rolEquipo) await member.roles.add(rolEquipo);
 
-      // 🔥 ahora SIEMPRE aplica rol si existe
+      // ✅ rol tipo
       if (rolTipo) {
-        try{
-          await member.roles.add(rolTipo);
-        }catch (err){
-          console.log('⚠️ No se pudo asignar equipo:', data.equipo);
-        }
-      }
+  	try {
+    	  await member.roles.add(rolTipo);
+  	} catch {
+    	  console.log('⚠️ No se pudo asignar rol:', data.rol);
+  	}
+    }
 
-      // 🔥 solo EWC tiene rol base
+
+      // ✅ grupo (SEPARADO)
+      if (rolGrupo) {
+  	try {
+   	 await member.roles.add(rolGrupo);
+  	} catch {
+    	  console.log('⚠️ No se pudo asignar grupo:', data.grupo);
+  	}
+    }
+
+      // ✅ rol base
       if (!CONFIG.soloEquipo && rolBase) {
-        await member.roles.add(rolBase);
+ 	 await member.roles.add(rolBase);
     }
 
       const tri = CONFIG.equipos[data.equipo] || data.equipo;
