@@ -41,7 +41,13 @@ const MONGO_URI = process.env.MONGO_URI;
 // 🔥 MONGO
 // =======================
 mongoose.connect(MONGO_URI)
-  .then(() => console.log("🟢 Mongo conectado"))
+  .then(async () => {
+    console.log("🟢 Mongo conectado");
+
+    // 🧹 LIMPIEZA (SOLO UNA VEZ)
+    await Registro.deleteMany({});
+    console.log("🧹 Mongo limpiado");
+  })
   .catch(err => console.error(err));
 
 const registroSchema = new mongoose.Schema({
@@ -652,15 +658,17 @@ if (interaction.isButton() && interaction.customId === 'finalizar_partida') {
 
       const nickname = interaction.fields.getTextInputValue('nickname');
 
-      await Registro.create({
-        userId: user,
-        guildId: interaction.guild.id,
+    await Registro.findOneAndUpdate(
+      { userId: user, guildId: interaction.guild.id },
+      {
         equipo: data.equipo,
         rol: data.rol,
         grupo: data.grupo,
         nickname,
         estado: "pendiente"
-      });
+      },
+      { upsert: true, new: true }
+    );
 
       const canal = interaction.guild.channels.cache.find(c => c.name === '📋┃solicitudes');
 
