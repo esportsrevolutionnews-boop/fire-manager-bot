@@ -43,10 +43,6 @@ const MONGO_URI = process.env.MONGO_URI;
 mongoose.connect(MONGO_URI)
   .then(async () => {
     console.log("🟢 Mongo conectado");
-
-    // 🧹 LIMPIEZA (SOLO UNA VEZ)
-    await Registro.deleteMany({});
-    console.log("🧹 Mongo limpiado");
   })
   .catch(err => console.error(err));
 
