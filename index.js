@@ -530,13 +530,19 @@ if (interaction.isButton() && interaction.customId === 'registro') {
 
   // ✅ GRUPOS (solo si existen)
   if (CONFIG.grupos) {
+
+    const gruposRegistro = CONFIG.grupos.filter(
+      g => g !== "FINAL"
+    );
+
     const grupoMenu = new StringSelectMenuBuilder()
       .setCustomId('grupo')
       .setPlaceholder('Grupo')
-      .addOptions(CONFIG.grupos.map(g => ({
+      .addOptions(gruposRegistro.map(g => ({
         label: ["PLAYOFFS", "REPECHAJE"].includes(g)
           ? g
-           : `GRUPO ${g}`,
+          : `GRUPO ${g}`,
+
         value: g
       })));
 
