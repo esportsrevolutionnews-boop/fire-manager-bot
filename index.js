@@ -558,85 +558,206 @@ if (interaction.isButton() && interaction.customId === 'finalizar_partida') {
 
   partidas[interaction.user.id] = {};
 
-  // 🔥 opciones (equipos + grupos)
-  const opciones = [
-    ...Object.keys(CONFIG.equipos).map(e => ({
-      label: e,
-      value: e
-    })),
-
-    ...(CONFIG.grupos || []).map(g => ({
-      label: ["PLAYOFFS", "REPECHAJE", "FINAL"].includes(g)
-        ? g
-        : `GRUPO ${g}`,
-
-      value: ["PLAYOFFS", "REPECHAJE", "FINAL"].includes(g)
-        ? g
-        : `GRUPO ${g}`
-    }))
-  ];
-
-  const equipo1Menu = new StringSelectMenuBuilder()
-    .setCustomId('match_equipo1')
-    .setPlaceholder('Equipo / Grupo 1')
-    .addOptions(opciones);
-
-  const equipo2Menu = new StringSelectMenuBuilder()
-    .setCustomId('match_equipo2')
-    .setPlaceholder('Equipo / Grupo 2')
-    .addOptions(opciones);
+  const tipoMenu = new StringSelectMenuBuilder()
+    .setCustomId('tipo_match')
+    .setPlaceholder('Tipo de partida')
+    .addOptions([
+      {
+        label: '📘 FASE REGULAR',
+        value: 'regular'
+      },
+      {
+        label: '🔥 PLAYOFFS',
+        value: 'playoffs'
+      },
+      {
+        label: '⚔️ VS',
+        value: 'vs'
+      }
+    ]);
 
   return interaction.reply({
-    content: 'Selecciona equipos o grupos:',
+    content: 'Selecciona el tipo de partida:',
     components: [
-      new ActionRowBuilder().addComponents(equipo1Menu),
-      new ActionRowBuilder().addComponents(equipo2Menu)
+      new ActionRowBuilder().addComponents(tipoMenu)
     ],
     ephemeral: true
   });
 }
 
+// =======================
+// 🔽 SELECTS
+// =======================
+if (interaction.isStringSelectMenu()) {
+
+  const user = interaction.user.id;
+
+  // =======================
+  // 🏁 TIPO MATCH
+  // =======================
+  if (interaction.customId === 'tipo_match') {
+
+    partidas[user] ??= {};
+
+    const tipo = interaction.values[0];
+
+    partidas[user].tipo = tipo;
+
     // =======================
-    // 🔽 SELECTS
+    // 📘 FASE REGULAR
     // =======================
-    if (interaction.isStringSelectMenu()) {
+    if (tipo === 'regular') {
 
-      const user = interaction.user.id;
+      const opciones = ["A", "B", "C"].map(g => ({
+        label: `GRUPO ${g}`,
+        value: `GRUPO ${g}`
+      }));
 
-      // MATCH
-      if (interaction.customId.startsWith('match_')) {
+      const equipo1Menu = new StringSelectMenuBuilder()
+        .setCustomId('match_equipo1')
+        .setPlaceholder('Grupo 1')
+        .addOptions(opciones);
 
-        partidas[user] ??= {};
+      const equipo2Menu = new StringSelectMenuBuilder()
+        .setCustomId('match_equipo2')
+        .setPlaceholder('Grupo 2')
+        .addOptions(opciones);
 
-        if (interaction.customId === 'match_equipo1') {
-          partidas[user].equipo1 = interaction.values[0];
-        }
+      return interaction.reply({
+        content: 'Selecciona grupos:',
+        components: [
+          new ActionRowBuilder().addComponents(equipo1Menu),
+          new ActionRowBuilder().addComponents(equipo2Menu)
+        ],
+        ephemeral: true
+      });
+    }
 
-        if (interaction.customId === 'match_equipo2') {
-          partidas[user].equipo2 = interaction.values[0];
-        }
+    // =======================
+    // 🔥 PLAYOFFS
+    // =======================
+    if (tipo === 'playoffs') {
 
-        const data = partidas[user];
+      const opciones = [
+        "PLAYOFFS",
+        "REPECHAJE",
+        "FINAL"
+      ].map(g => ({
+        label: g,
+        value: g
+      }));
 
-        if (data.equipo1 && data.equipo2) {
+      const faseMenu = new StringSelectMenuBuilder()
+        .setCustomId('match_fase')
+        .setPlaceholder('Fase')
+        .addOptions(opciones);
 
-          const modal = new ModalBuilder()
-            .setCustomId('modal_match')
-            .setTitle('Finalizar Partida');
+      return interaction.reply({
+        content: 'Selecciona la fase:',
+        components: [
+          new ActionRowBuilder().addComponents(faseMenu)
+        ],
+        ephemeral: true
+      });
+    }
 
-          const partida = new TextInputBuilder()
-            .setCustomId('partida')
-            .setLabel('Número de partida')
-            .setStyle(TextInputStyle.Short);
+    // =======================
+    // ⚔️ VS
+    // =======================
+    if (tipo === 'vs') {
 
-          modal.addComponents(new ActionRowBuilder().addComponents(partida));
+      const opciones = Object.keys(CONFIG.equipos).map(e => ({
+        label: e,
+        value: e
+      }));
 
-          return interaction.showModal(modal);
-        }
+      const equipo1Menu = new StringSelectMenuBuilder()
+        .setCustomId('match_equipo1')
+        .setPlaceholder('Equipo 1')
+        .addOptions(opciones.slice(0, 25));
 
-        return interaction.reply({ content: 'Equipo guardado', ephemeral: true });
-      }
+      const equipo2Menu = new StringSelectMenuBuilder()
+        .setCustomId('match_equipo2')
+        .setPlaceholder('Equipo 2')
+        .addOptions(opciones.slice(0, 25));
 
+      return interaction.reply({
+        content: 'Selecciona equipos:',
+        components: [
+          new ActionRowBuilder().addComponents(equipo1Menu),
+          new ActionRowBuilder().addComponents(equipo2Menu)
+        ],
+        ephemeral: true
+      });
+    }
+  }
+
+  // =======================
+  // 🔥 PLAYOFFS FASE
+  // =======================
+  if (interaction.customId === 'match_fase') {
+
+    partidas[user] ??= {};
+
+    partidas[user].fase = interaction.values[0];
+
+    const modal = new ModalBuilder()
+      .setCustomId('modal_match')
+      .setTitle('Finalizar Partida');
+
+    const partida = new TextInputBuilder()
+      .setCustomId('partida')
+      .setLabel('Número de partida')
+      .setStyle(TextInputStyle.Short);
+
+    modal.addComponents(
+      new ActionRowBuilder().addComponents(partida)
+    );
+
+    return interaction.showModal(modal);
+  }
+
+  // =======================
+  // MATCH NORMAL
+  // =======================
+  if (interaction.customId.startsWith('match_')) {
+
+    partidas[user] ??= {};
+
+    if (interaction.customId === 'match_equipo1') {
+      partidas[user].equipo1 = interaction.values[0];
+    }
+
+    if (interaction.customId === 'match_equipo2') {
+      partidas[user].equipo2 = interaction.values[0];
+    }
+
+    const data = partidas[user];
+
+    if (data.equipo1 && data.equipo2) {
+
+      const modal = new ModalBuilder()
+        .setCustomId('modal_match')
+        .setTitle('Finalizar Partida');
+
+      const partida = new TextInputBuilder()
+        .setCustomId('partida')
+        .setLabel('Número de partida')
+        .setStyle(TextInputStyle.Short);
+
+      modal.addComponents(
+        new ActionRowBuilder().addComponents(partida)
+      );
+
+      return interaction.showModal(modal);
+    }
+
+    return interaction.reply({
+      content: 'Equipo guardado',
+      ephemeral: true
+    });
+  }
+}
       // REGISTRO
       registros[user] ??= {};
       registros[user][interaction.customId] = interaction.values[0];
@@ -740,37 +861,90 @@ if (interaction.isButton() && interaction.customId === 'finalizar_partida') {
 
       const partida = interaction.fields.getTextInputValue('partida');
 
-      const rol1 = interaction.guild.roles.cache.find(r => r.name === data.equipo1);
-      const rol2 = interaction.guild.roles.cache.find(r => r.name === data.equipo2);
+      const canalNotificaciones = interaction.guild.channels.cache.find(
+  c => c.name === '📢┋notificaciones'
+);
 
-      if (!rol1 || !rol2) {
-        return interaction.reply({
-          content: '❌ Roles no encontrados',
-          ephemeral: true
-        });
-      }
+const canalCambios = interaction.guild.channels.cache.find(
+  c => c.name === '🔄┋cambios'
+);
 
-      const canalNotificaciones = interaction.guild.channels.cache.find(c => c.name === '📢┋notificaciones');
-      const canalCambios = interaction.guild.channels.cache.find(c => c.name === '🔄┋cambios');
+if (!canalNotificaciones) {
+  return interaction.reply({
+    content: '❌ Canal de notificaciones no existe',
+    ephemeral: true
+  });
+}
 
-      if (!canalNotificaciones) {
-        return interaction.reply({
-          content: '❌ Canal de notificaciones no existe',
-          ephemeral: true
-        });
-      }
+// =======================
+// 🔥 PLAYOFFS
+// =======================
+if (data.tipo === 'playoffs') {
 
-      const msg = `📢  **Finaliza la partida ${partida}**
+  const rol = interaction.guild.roles.cache.find(
+    r => r.name === data.fase
+  );
+
+  if (!rol) {
+    return interaction.reply({
+      content: '❌ Rol no encontrado',
+      ephemeral: true
+    });
+  }
+
+  const msg = `📢 **Finaliza la partida ${partida} de ${data.fase}**
+
+<@&${rol.id}>
+
+⏱️ **Comienzan los 5 minutos para realizar cambios.**
+
+_Staffs y suplentes pueden unirse a sus canales de voz._
+
+📌 Reporten cualquier cambio en el canal: ${
+    canalCambios
+      ? `<#${canalCambios.id}>`
+      : '#🔄┋cambios'
+  }`;
+
+  await canalNotificaciones.send(msg);
+
+} else {
+
+  // =======================
+  // 📘 REGULAR / ⚔️ VS
+  // =======================
+
+  const rol1 = interaction.guild.roles.cache.find(
+    r => r.name === data.equipo1
+  );
+
+  const rol2 = interaction.guild.roles.cache.find(
+    r => r.name === data.equipo2
+  );
+
+  if (!rol1 || !rol2) {
+    return interaction.reply({
+      content: '❌ Roles no encontrados',
+      ephemeral: true
+    });
+  }
+
+  const msg = `📢  **Finaliza la partida ${partida}**
 <@&${rol1.id}> VS <@&${rol2.id}>  
 
 ⏱️ **Comienzan los 5 minutos para realizar cambios.**
 
 _Staffs y suplentes pueden unirse a sus canales de voz._
 
-📌 Reporten cualquier cambio en el canal: ${canalCambios ? `<#${canalCambios.id}>` : '#🔄┋cambios'}`;
+📌 Reporten cualquier cambio en el canal: ${
+    canalCambios
+      ? `<#${canalCambios.id}>`
+      : '#🔄┋cambios'
+  }`;
 
-      await canalNotificaciones.send(msg);
-
+  await canalNotificaciones.send(msg);
+}
+     
       await interaction.reply({ content: '✅ Enviado', ephemeral: true });
 
       setTimeout(() => {
