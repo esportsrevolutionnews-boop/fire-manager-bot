@@ -786,6 +786,7 @@ if (interaction.isStringSelectMenu()) {
 
       return interaction.deferUpdate();
     }
+}
 
     // =======================
     // 🧾 MODAL REGISTRO
