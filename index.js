@@ -64,7 +64,7 @@ const Registro = mongoose.model("Registro", registroSchema);
 const CONFIGS = {
   "1485225770287894530": {
     rolBase: "EWC",
-    grupos: ["A", "B", "C"],
+    grupos: ["A", "B", "C", "PLAYOFFS", "REPECHAJE", "FINAL"],
     roles: ["JUGADOR", "COACH", "MANAGER", "ANALISTA", "STAFF"],
     equipos: {
       "9z GLOBANT": "9zG",
@@ -84,7 +84,13 @@ const CONFIGS = {
       "LYON": "LYON",
       "MONOUGG": "MGG",
       "MOVISTAR KOI": "KOI",
-      "NOVA LEGION": "NVL"
+      "NOVA LEGION": "NVL",
+      "BLOODY BROTHERS": "BL",
+      "RYU GAMING": "RYU",
+      "SBK ESPORT": "SBK",
+      "SELTIK GAMING": "SKG",
+      "THE T1S": "T1",
+      "TW7 GAMING": "TW7"
     }
   },
   "1499722994266804265":{
@@ -125,7 +131,7 @@ const CONFIGS = {
   "1499714835154206740":{
     soloEquipo: true,
     guardarRolInfo: true,
-    equipos: { "FLORIDA FLF": "FLF"}
+    equipos: { "BLOODY BROTHERS": "BL"}
   },
   "1499726755244544171":{
     soloEquipo: true,
@@ -135,7 +141,7 @@ const CONFIGS = {
   "1499719752291979367":{
     soloEquipo: true,
     guardarRolInfo: true,
-    equipos: { "GUN DYNASTY": "GD"}
+    equipos: { "SELTIK GAMING": "SKG"}
   },
   "1499727091346833459":{
     soloEquipo: true,
@@ -145,7 +151,7 @@ const CONFIGS = {
   "1499720671125573632":{
     soloEquipo: true,
     guardarRolInfo: true,
-    equipos: { "INFINITY E-SPORTS": "INF"}
+    equipos: { "RYU GAMING": "RYU"}
   },
   "1499727358473539775":{
     soloEquipo: true,
@@ -165,17 +171,17 @@ const CONFIGS = {
   "1499721276481077278":{
     soloEquipo: true,
     guardarRolInfo: true,
-    equipos: { "MONOUGG": "MGG"}
+    equipos: { "TW7 GAMING": "TW7"}
   },
   "1499722164549587044":{
     soloEquipo: true,
     guardarRolInfo: true,
-    equipos: { "MOVISTAR KOI": "KOI"}
+    equipos: { "SBK ESPORT": "SBK"}
   },
   "1499722549557465270":{
     soloEquipo: true,
     guardarRolInfo: true,
-    equipos: { "NOVA LEGION": "NVL"}
+    equipos: { "THE T1S": "T1"}
   },
   "1219724901456547961":{
     soloEquipo: true,
@@ -346,7 +352,13 @@ client.on('interactionCreate', async (interaction) => {
         : null;
 
       const rolGrupo = data.grupo
-        ? interaction.guild.roles.cache.find(r => r.name === `GRUPO ${data.grupo}`)
+        ? interaction.guild.roles.cache.find(r =>
+           r.name === (
+             ["PLAYOFFS", "REPECHAJE"].includes(data.grupo)
+               ? data.grupo
+               : `GRUPO ${data.grupo}`
+           )
+          )
         : null;
 
       const rolBase = CONFIG.rolBase
@@ -382,10 +394,17 @@ client.on('interactionCreate', async (interaction) => {
       // quitar grupos (solo EWC)
       if (CONFIG.grupos) {
         for (const g of CONFIG.grupos) {
-          const rol = interaction.guild.roles.cache.find(r => r.name === `GRUPO ${g}`);
+          const rol = interaction.guild.roles.cache.find(r =>
+            r.name === (
+             ["PLAYOFFS", "REPECHAJE"].includes(g)
+               ? g
+               : `GRUPO ${g}`
+            )
+          );
+
           if (rol && member.roles.cache.has(rol.id)) {
             await member.roles.remove(rol);
-          }
+          }  
         }
       }
 
@@ -515,7 +534,9 @@ if (interaction.isButton() && interaction.customId === 'registro') {
       .setCustomId('grupo')
       .setPlaceholder('Grupo')
       .addOptions(CONFIG.grupos.map(g => ({
-        label: `GRUPO ${g}`,
+        label: ["PLAYOFFS", "REPECHAJE"].includes(g)
+          ? g
+           : `GRUPO ${g}`,
         value: g
       })));
 
@@ -545,8 +566,13 @@ if (interaction.isButton() && interaction.customId === 'finalizar_partida') {
     })),
 
     ...(CONFIG.grupos || []).map(g => ({
-      label: `GRUPO ${g}`,
-      value: `GRUPO ${g}`
+      label: ["PLAYOFFS", "REPECHAJE", "FINAL"].includes(g)
+        ? g
+        : `GRUPO ${g}`,
+
+      value: ["PLAYOFFS", "REPECHAJE", "FINAL"].includes(g)
+        ? g
+        : `GRUPO ${g}`
     }))
   ];
 
