@@ -757,7 +757,7 @@ if (interaction.isStringSelectMenu()) {
       ephemeral: true
     });
   }
-  
+
       // REGISTRO
       registros[user] ??= {};
       registros[user][interaction.customId] = interaction.values[0];
@@ -786,7 +786,6 @@ if (interaction.isStringSelectMenu()) {
 
       return interaction.deferUpdate();
     }
-}
 
     // =======================
     // 🧾 MODAL REGISTRO
