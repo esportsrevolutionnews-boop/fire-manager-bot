@@ -898,9 +898,7 @@ if (data.tipo === 'playoffs') {
     });
   }
 
-  const msg = `📢 **Finaliza la partida ${partida} de ${data.fase}**
-
-<@&${rol.id}>
+  const msg = `📢 **Finaliza la partida ${partida} de <@&${rol.id}>**
 
 ⏱️ **Comienzan los 5 minutos para realizar cambios.**
 
