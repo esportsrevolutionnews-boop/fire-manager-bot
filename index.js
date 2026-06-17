@@ -93,6 +93,30 @@ const CONFIGS = {
       "TW7 GAMING": "TW7"
     }
   },
+"1419847335420100739": {
+    rolBase: "4pa4",
+    roles: [
+      "JUGADOR",
+      "COACH",
+      "MANAGER",
+      "ANALISTA",
+      "STAFF"
+    ],
+    equipos: {
+      "9z GLOBANT": "9zG",
+      "BLOODY BROTHERS": "BL",
+      "ESTORM DRK": "ESG",
+      "FD QUISQUEYA": "QFD",
+      "FUEGO": "FGO",
+      "GUN DYNASTY": "GD",
+      "HNS ESPORTS": "HNS",
+      "INFINITY E-SPORTS": "INF",
+      "LEVIATÁN": "LEV",
+      "LYON": "LYON",
+      "MOVISTAR KOI": "KOI",
+      "NOVA LEGION": "NVL"
+    }
+  },
   "1499722994266804265":{
     soloEquipo: true,
     guardarRolInfo: true,
