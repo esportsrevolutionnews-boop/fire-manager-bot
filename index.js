@@ -116,7 +116,7 @@ const CONFIGS = {
       "MOVISTAR KOI": "KOI",
       "NOVA LEGION": "NVL",
       "TOMINETA X WICKERS": "WK",
-      "DEADLAND": "DEAD",
+      "RETA ACADEMY": "RETA",
       "ENERGY ESPORT MX": "ENE",
       "LOL ESPORTS": "LOL"
     }
@@ -144,7 +144,7 @@ const CONFIGS = {
   "1499724072106594404":{
     soloEquipo: true,
     guardarRolInfo: true,
-    equipos: { "DEADLAND": "DEAD"}
+    equipos: { "RETA ACADEMY": "RETA"}
   },
   "1499726475044192297":{
     soloEquipo: true,
