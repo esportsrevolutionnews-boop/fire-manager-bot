@@ -114,13 +114,17 @@ const CONFIGS = {
       "LEVIATÁN": "LEV",
       "LYON": "LYON",
       "MOVISTAR KOI": "KOI",
-      "NOVA LEGION": "NVL"
+      "NOVA LEGION": "NVL",
+      "TOMINETA X WICKERS": "WK",
+      "DEADLAND": "DEAD",
+      "ENERGY ESPORT MX": "ENE",
+      "LOL ESPORTS": "LOL"
     }
   },
   "1499722994266804265":{
     soloEquipo: true,
     guardarRolInfo: true,
-    equipos: { "9z GLOBANT": "9zG"}
+    equipos: { "TOMINETA X WICKERS": "WK"}
   },
   "1499725759609045134":{
     soloEquipo: true,
@@ -135,12 +139,12 @@ const CONFIGS = {
   "1499723809291374633":{
     soloEquipo: true,
     guardarRolInfo: true,
-    equipos: { "CACM ESPORTS": "CACM"}
+    equipos: { "ENERGY ESPORT MX": "ENE"}
   },
   "1499724072106594404":{
     soloEquipo: true,
     guardarRolInfo: true,
-    equipos: { "CHILL ESPORTS": "CHL"}
+    equipos: { "DEADLAND": "DEAD"}
   },
   "1499726475044192297":{
     soloEquipo: true,
@@ -150,7 +154,7 @@ const CONFIGS = {
   "1499724647443464305":{
     soloEquipo: true,
     guardarRolInfo: true,
-    equipos: { "FD QUISQUEYA": "QFD"}
+    equipos: { "LOL ESPORTS": "LOL"}
   },
   "1499714835154206740":{
     soloEquipo: true,
