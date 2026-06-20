@@ -118,7 +118,7 @@ const CONFIGS = {
       "TOMINETA X WICKERS": "WK",
       "RETA ACADEMY": "RETA",
       "ENERGY ESPORT MX": "ENE",
-      "LOL ESPORTS": "LOL"
+      "LOL ESPORT": "LOL"
     }
   },
   "1499722994266804265":{
