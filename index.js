@@ -154,7 +154,7 @@ const CONFIGS = {
   "1499724647443464305":{
     soloEquipo: true,
     guardarRolInfo: true,
-    equipos: { "LOL ESPORTS": "LOL"}
+    equipos: { "LOL ESPORT": "LOL"}
   },
   "1499714835154206740":{
     soloEquipo: true,
