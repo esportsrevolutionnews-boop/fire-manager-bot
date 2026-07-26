@@ -93,15 +93,12 @@ const CONFIGS = {
       "TW7 GAMING": "TW7"
     }
   },
-"613572367460859914": {
+const CONFIGS = {
+  "613572367460859914": {
     rolBase: "FFWS",
-    roles: [
-      "JUGADOR",
-      "COACH",
-      "MANAGER",
-      "ANALISTA",
-      "STAFF"
-    ],
+    grupos: ["A", "B", "C"],
+    roles: ["JUGADOR", "COACH", "MANAGER", "ANALISTA", "STAFF"],
+    equipos: {
     equipos: {
       "9z GLOBANT": "9zG",
       "ALL GLORY GAMERHOOD": "AGG",
