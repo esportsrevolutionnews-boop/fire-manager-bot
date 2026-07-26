@@ -98,7 +98,6 @@ const CONFIGS = {
     grupos: ["A", "B", "C"],
     roles: ["JUGADOR", "COACH", "MANAGER", "ANALISTA", "STAFF"],
     equipos: {
-    equipos: {
       "9z GLOBANT": "9zG",
       "ALL GLORY GAMERHOOD": "AGG",
       "BLOODY BROTHERS": "BL",
