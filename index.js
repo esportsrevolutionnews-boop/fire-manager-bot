@@ -93,8 +93,8 @@ const CONFIGS = {
       "TW7 GAMING": "TW7"
     }
   },
-"1419847335420100739": {
-    rolBase: "4pa4",
+"613572367460859914": {
+    rolBase: "FFWS",
     roles: [
       "JUGADOR",
       "COACH",
@@ -104,7 +104,11 @@ const CONFIGS = {
     ],
     equipos: {
       "9z GLOBANT": "9zG",
+      "ALL GLORY GAMERHOOD": "AGG",
       "BLOODY BROTHERS": "BL",
+      "BLUE CHEESE": "BC",
+      "CACM ESPORTS": "CACM",
+      "CHILL ESPORTS": "CHL",
       "ESTORM DRK": "ESG",
       "FD QUISQUEYA": "QFD",
       "FUEGO": "FGO",
@@ -112,104 +116,12 @@ const CONFIGS = {
       "HNS ESPORTS": "HNS",
       "INFINITY E-SPORTS": "INF",
       "LEVIATÁN": "LEV",
+      "LMG ESPORT": "LMG",
       "LYON": "LYON",
-      "MOVISTAR KOI": "KOI",
-      "NOVA LEGION": "NVL",
-      "TOMINETA X WICKERS": "WK",
-      "RETA ACADEMY": "RETA",
-      "ENERGY ESPORT MX": "ENE",
-      "LOL ESPORT": "LOL"
+      "MÍA CORP": "MÍA",
+      "NOVA LEGIÓN": "NVL",
+      "ROW ESPORTS": "ROW"
     }
-  },
-  "1499722994266804265":{
-    soloEquipo: true,
-    guardarRolInfo: true,
-    equipos: { "TOMINETA X WICKERS": "WK"}
-  },
-  "1499725759609045134":{
-    soloEquipo: true,
-    guardarRolInfo: true,
-    equipos: { "ALL GLORY GAMERHOOD": "AGG"}
-  },
-  "1499726070985920583":{
-    soloEquipo: true,
-    guardarRolInfo: true,
-    equipos: { "BLUE CHEESE": "BC"}
-  },
-  "1499723809291374633":{
-    soloEquipo: true,
-    guardarRolInfo: true,
-    equipos: { "ENERGY ESPORT MX": "ENE"}
-  },
-  "1499724072106594404":{
-    soloEquipo: true,
-    guardarRolInfo: true,
-    equipos: { "RETA ACADEMY": "RETA"}
-  },
-  "1499726475044192297":{
-    soloEquipo: true,
-    guardarRolInfo: true,
-    equipos: { "ESTORM DRK": "ESG"}
-  },
-  "1499724647443464305":{
-    soloEquipo: true,
-    guardarRolInfo: true,
-    equipos: { "LOL ESPORT": "LOL"}
-  },
-  "1499714835154206740":{
-    soloEquipo: true,
-    guardarRolInfo: true,
-    equipos: { "BLOODY BROTHERS": "BL"}
-  },
-  "1499726755244544171":{
-    soloEquipo: true,
-    guardarRolInfo: true,
-    equipos: { "FUEGO": "FGO"}
-  },
-  "1499719752291979367":{
-    soloEquipo: true,
-    guardarRolInfo: true,
-    equipos: { "SELTIK GAMING": "SKG"}
-  },
-  "1499727091346833459":{
-    soloEquipo: true,
-    guardarRolInfo: true,
-    equipos: { "HNS ESPORTS": "HNS"}
-  },
-  "1499720671125573632":{
-    soloEquipo: true,
-    guardarRolInfo: true,
-    equipos: { "RYU GAMING": "RYU"}
-  },
-  "1499727358473539775":{
-    soloEquipo: true,
-    guardarRolInfo: true,
-    equipos: { "LEVIATÁN": "LEV"}
-  },
-  "1499724964717133904":{
-    soloEquipo: true,
-    guardarRolInfo: true,
-    equipos: { "LMG ESPORT": "LMG"}
-  },
-  "1499725237800140841":{
-    soloEquipo: true,
-    guardarRolInfo: true,
-    equipos: { "LYON": "LYON"}
-  },
-  "1499721276481077278":{
-    soloEquipo: true,
-    guardarRolInfo: true,
-    equipos: { "TW7 GAMING": "TW7"}
-  },
-  "1499722164549587044":{
-    soloEquipo: true,
-    guardarRolInfo: true,
-    equipos: { "SBK ESPORT": "SBK"}
-  },
-  "1499722549557465270":{
-    soloEquipo: true,
-    guardarRolInfo: true,
-    equipos: { "THE T1S": "T1"}
   },
   "1219724901456547961":{
     soloEquipo: true,
@@ -220,6 +132,11 @@ const CONFIGS = {
     soloEquipo: true,
     guardarRolInfo: true,
     equipos: { "ALL GLORY GAMERHOOD": "AGG"}
+  },
+  "1499714835154206740":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "BLOODY BROTHERS": "BL"}
   },
   "1219727997205090394":{
     soloEquipo: true,
@@ -245,11 +162,6 @@ const CONFIGS = {
     soloEquipo: true,
     guardarRolInfo: true,
     equipos: { "FD QUISQUEYA": "QFD"}
-  },
-  "1219728272737439865":{
-    soloEquipo: true,
-    guardarRolInfo: true,
-    equipos: { "FLORIDA FLF": "FLF"}
   },
   "1219728368665104405":{
     soloEquipo: true,
@@ -289,18 +201,19 @@ const CONFIGS = {
   "1219727862714601573":{
     soloEquipo: true,
     guardarRolInfo: true,
-    equipos: { "MONOUGG": "MGG"}
-  },
-  "1219727789213614081":{
-    soloEquipo: true,
-    guardarRolInfo: true,
-    equipos: { "MOVISTAR KOI": "KOI"}
+    equipos: { "MÍA CORP": "MÍA"}
   },
   "1219727308571803678":{
     soloEquipo: true,
     guardarRolInfo: true,
-    equipos: { "NOVA LEGION": "NVL"}
+    equipos: { "NOVA LEGIÓN": "NVL"}
   },
+  "1499720671125573632":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "ROW ESPORTS": "ROW"}
+  },
+
 };
 
 let registros = {};
