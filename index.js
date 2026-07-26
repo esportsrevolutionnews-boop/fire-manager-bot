@@ -93,7 +93,6 @@ const CONFIGS = {
       "TW7 GAMING": "TW7"
     }
   },
-const CONFIGS = {
   "613572367460859914": {
     rolBase: "FFWS",
     grupos: ["A", "B", "C"],
