@@ -266,6 +266,8 @@ client.on('interactionCreate', async (interaction) => {
     // =======================
     if (interaction.isButton() && interaction.customId.startsWith('ok_')) {
 
+      await interaction.deferUpdate();
+
       const id = interaction.customId.split('_')[1];
 
       const data = await Registro.findOne({ userId: id, guildId: interaction.guild.id });
@@ -387,8 +389,6 @@ client.on('interactionCreate', async (interaction) => {
 
       const staff = interaction.user.username;
 
-      await interaction.deferUpdate();
-
       await interaction.message.edit({
         content: `✅ [ ${tri} ] ${data.nickname} aprobado por ${staff}`,
         embeds: [],
@@ -400,6 +400,8 @@ client.on('interactionCreate', async (interaction) => {
 
     if (interaction.isButton() && interaction.customId.startsWith('no_')) {
 
+      await interaction.deferUpdate();
+
       const id = interaction.customId.split('_')[1];
 
       await Registro.updateOne(
@@ -407,7 +409,6 @@ client.on('interactionCreate', async (interaction) => {
         { estado: "rechazado" }
       );
 
-      await interaction.deferUpdate();
       
       await interaction.message.edit({
         content: '❌ Rechazado',
