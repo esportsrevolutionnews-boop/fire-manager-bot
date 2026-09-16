@@ -100,7 +100,7 @@ const CONFIGS = {
     equipos: {
       "9z GLOBANT": "9zG",
       "ALL GLORY GAMERHOOD": "AGG",
-      "BLOODY BROTHERS": "BL",
+      "BLOODY BROTHERS": "BS",
       "BLUE CHEESE": "BC",
       "CACM ESPORTS": "CACM",
       "CHILL ESPORTS": "CHL",
@@ -137,7 +137,7 @@ const CONFIGS = {
   "1499714835154206740":{
     soloEquipo: true,
     guardarRolInfo: true,
-    equipos: { "BLOODY BROTHERS": "BL"}
+    equipos: { "BLOODY BROTHERS": "BS"}
   },
   "1219727997205090394":{
     soloEquipo: true,
