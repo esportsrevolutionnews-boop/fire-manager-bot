@@ -116,6 +116,12 @@ const CONFIGS = {
       "MÍA CORP": "MÍA",
       "NOVA LEGIÓN": "NVL",
       "ROW ESPORTS": "ROW"
+      "LOL ESPORT": "LOL"
+      "LUCKSQUAD": "LK"
+      "BVS ESPORT": "BVS"
+      "NYRAX": "NX"
+      "NF E-SPORT": "NF"
+      "DOCE LUNAS": "DL"
     }
   },
   "1219724901456547961":{
@@ -208,6 +214,37 @@ const CONFIGS = {
     guardarRolInfo: true,
     equipos: { "ROW ESPORTS": "ROW"}
   },
+  "1219727789213614081":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "DOCE LUNAS": "DL"}
+  },
+  "1499722994266804265":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "NF E-SPORT": "NF"}
+  },
+  "1499721276481077278":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "NYRAX": "NX"}
+  },
+  "1499723809291374633":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "BVS ESPORT": "BVS"}
+  },
+  "1499722549557465270":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "LUCKSQUAD": "LK"}
+  },
+  "1499724647443464305":{
+    soloEquipo: true,
+    guardarRolInfo: true,
+    equipos: { "LOL ESPORT": "LOL"}
+  },
+
 
 };
 
