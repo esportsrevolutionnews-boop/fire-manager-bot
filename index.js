@@ -95,7 +95,7 @@ const CONFIGS = {
   },
   "613572367460859914": {
     rolBase: "FFWS",
-    grupos: ["A", "B", "C"],
+    grupos: ["A", "B", "C", "PLAYOFFS", "REPECHAJE", "FINAL"],
     roles: ["JUGADOR", "COACH", "MANAGER", "ANALISTA", "STAFF"],
     equipos: {
       "9z GLOBANT": "9zG",
