@@ -115,12 +115,12 @@ const CONFIGS = {
       "LYON": "LYON",
       "MÍA CORP": "MÍA",
       "NOVA LEGIÓN": "NVL",
-      "ROW ESPORTS": "ROW"
-      "LOL ESPORT": "LOL"
-      "LUCKSQUAD": "LK"
-      "BVS ESPORT": "BVS"
-      "NYRAX": "NX"
-      "NF E-SPORT": "NF"
+      "ROW ESPORTS": "ROW",
+      "LOL ESPORT": "LOL",
+      "LUCKSQUAD": "LK",
+      "BVS ESPORT": "BVS",
+      "NYRAX": "NX",
+      "NF E-SPORT": "NF",
       "DOCE LUNAS": "DL"
     }
   },
