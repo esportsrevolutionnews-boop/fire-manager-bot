@@ -116,7 +116,7 @@ const CONFIGS = {
       "MÍA CORP": "MÍA",
       "NOVA LEGIÓN": "NVL",
       "ROW ESPORTS": "ROW",
-      "LOL ESPORT": "LOL",
+      "LOL ESPORTS": "LOL",
       "LUCKSQUAD": "LK",
       "BVS ESPORT": "BVS",
       "NYRAX": "NX",
@@ -242,7 +242,7 @@ const CONFIGS = {
   "1499724647443464305":{
     soloEquipo: true,
     guardarRolInfo: true,
-    equipos: { "LOL ESPORT": "LOL"}
+    equipos: { "LOL ESPORTS": "LOL"}
   },
 
 
