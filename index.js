@@ -124,6 +124,28 @@ const CONFIGS = {
       "DOCE LUNAS": "DL"
     }
   },
+  "613572367460859914": {
+    rolBase: "4pa4",
+    roles: ["JUGADOR", "COACH", "MANAGER", "ANALISTA", "STAFF"],
+    equipos: {
+      "9z GLOBANT": "9zG",
+      "BLOODY BROTHERS": "BS",
+      "BLUE CHEESE": "BC",
+      "CACM ESPORTS": "CACM",
+      "ESTORM DRK": "ESG",
+      "FD QUISQUEYA": "QFD",
+      "GUN DYNASTY": "GD",
+      "HNS ESPORTS": "HNS",
+      "INFINITY E-SPORTS": "INF",
+      "LEVIATÁN": "LEV",
+      "LYON": "LYON",
+      "NOVA LEGIÓN": "NVL",
+      "GLOW UP ESPORT": "GLOW",
+      "DRAGONS": "DRS",
+      "NF E-SPORT": "NF",
+      "X9 ESPORT": "X9"
+    }
+  },
   "1219724901456547961":{
     soloEquipo: true,
     guardarRolInfo: true,
@@ -217,7 +239,7 @@ const CONFIGS = {
   "1219727789213614081":{
     soloEquipo: true,
     guardarRolInfo: true,
-    equipos: { "DOCE LUNAS": "DL"}
+    equipos: { "DRAGONS": "DRS"}
   },
   "1499722994266804265":{
     soloEquipo: true,
@@ -227,7 +249,7 @@ const CONFIGS = {
   "1499721276481077278":{
     soloEquipo: true,
     guardarRolInfo: true,
-    equipos: { "NYRAX": "NX"}
+    equipos: { "GLOW UP ESPORT": "GLOW"}
   },
   "1499723809291374633":{
     soloEquipo: true,
@@ -237,7 +259,7 @@ const CONFIGS = {
   "1499722549557465270":{
     soloEquipo: true,
     guardarRolInfo: true,
-    equipos: { "LUCKSQUAD": "LK"}
+    equipos: { "X9 ESPORTS": "X9"}
   },
   "1499724647443464305":{
     soloEquipo: true,
