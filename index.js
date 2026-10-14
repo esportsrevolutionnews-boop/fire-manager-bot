@@ -124,7 +124,7 @@ const CONFIGS = {
       "DOCE LUNAS": "DL"
     }
   },
-  "613572367460859914": {
+  "1419847335420100739": {
     rolBase: "4pa4",
     roles: ["JUGADOR", "COACH", "MANAGER", "ANALISTA", "STAFF"],
     equipos: {
